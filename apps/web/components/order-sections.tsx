@@ -1,4 +1,5 @@
 'use client';
+import { QuoteSection } from './quote-section';
 
 export interface OrderDetail {
   id: string;
@@ -38,7 +39,7 @@ export interface OrderDetail {
   [extra: string]: unknown;
 }
 
-/** Seções do detalhe da ordem adicionadas pelas fases seguintes (orçamento, visitas, fotos). */
-export function OrderSections(_props: { order: OrderDetail; reload: () => void }) {
-  return null;
+/** Seções do detalhe da ordem: orçamento (quem pode ver valores), visitas e fotos. */
+export function OrderSections({ order, reload }: { order: OrderDetail; reload: () => void }) {
+  return <>{order.quotes !== undefined && <QuoteSection order={order} reload={reload} />}</>;
 }

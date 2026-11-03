@@ -1,50 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import type { Db } from '../src/db/pool.js';
-import { fixtures, ORIGIN, type Agent } from './fixtures.js';
+import { createCustomer, createOrder, fixtures, ORIGIN, type Agent } from './fixtures.js';
 import { resetDatabase, startApp } from './helpers.js';
-
-export async function createCustomer(
-  agent: Agent,
-  orgId: string,
-  name = 'Padaria Exemplo (fictícia)',
-) {
-  const res = await agent
-    .post(`/api/v1/organizations/${orgId}/customers`)
-    .set('Origin', ORIGIN)
-    .send({
-      name,
-      phone: '(11) 90000-0000',
-      address: {
-        street: 'Rua Fictícia',
-        number: '100',
-        city: 'São Paulo',
-        state: 'sp',
-        postalCode: '01000-000',
-      },
-      equipment: { description: 'Split 12.000 BTU', brand: 'MarcaX', capacityBtu: 12000 },
-    });
-  if (res.status !== 201) throw new Error(`cliente: ${res.status} ${JSON.stringify(res.body)}`);
-  return res.body as { id: string; addressId: string; equipmentId: string };
-}
-
-export async function createOrder(
-  agent: Agent,
-  orgId: string,
-  c: { id: string; addressId: string; equipmentId: string },
-) {
-  const res = await agent
-    .post(`/api/v1/organizations/${orgId}/orders`)
-    .set('Origin', ORIGIN)
-    .send({
-      customerId: c.id,
-      addressId: c.addressId,
-      equipmentId: c.equipmentId,
-      description: 'Não gela e pinga água',
-    });
-  if (res.status !== 201) throw new Error(`ordem: ${res.status} ${JSON.stringify(res.body)}`);
-  return res.body as { id: string; number: number; version: number };
-}
 
 describe('clientes e ordens (fase 3)', () => {
   let db: Db;
@@ -88,15 +46,12 @@ describe('clientes e ordens (fase 3)', () => {
   it('T02: referência a endereço/equipamento de outra empresa é recusada pela API', async () => {
     const cA = await createCustomer(attA, orgA);
     const cB = await createCustomer(attB, orgB);
-    const res = await attA
-      .post(`/api/v1/organizations/${orgA}/orders`)
-      .set('Origin', ORIGIN)
-      .send({
-        customerId: cA.id,
-        addressId: cB.addressId,
-        equipmentId: cA.equipmentId,
-        description: 'Teste cruzado',
-      });
+    const res = await attA.post(`/api/v1/organizations/${orgA}/orders`).set('Origin', ORIGIN).send({
+      customerId: cA.id,
+      addressId: cB.addressId,
+      equipmentId: cA.equipmentId,
+      description: 'Teste cruzado',
+    });
     expect(res.status).toBe(422);
     // cliente inteiro de outra empresa
     const res2 = await attA
@@ -114,15 +69,12 @@ describe('clientes e ordens (fase 3)', () => {
   it('T02: equipamento de OUTRO cliente da mesma empresa é recusado', async () => {
     const c1 = await createCustomer(attA, orgA, 'Cliente 1');
     const c2 = await createCustomer(attA, orgA, 'Cliente 2');
-    const res = await attA
-      .post(`/api/v1/organizations/${orgA}/orders`)
-      .set('Origin', ORIGIN)
-      .send({
-        customerId: c1.id,
-        addressId: c1.addressId,
-        equipmentId: c2.equipmentId,
-        description: 'Equip. de outro',
-      });
+    const res = await attA.post(`/api/v1/organizations/${orgA}/orders`).set('Origin', ORIGIN).send({
+      customerId: c1.id,
+      addressId: c1.addressId,
+      equipmentId: c2.equipmentId,
+      description: 'Equip. de outro',
+    });
     expect(res.status).toBe(422);
   });
 
@@ -239,15 +191,12 @@ describe('clientes e ordens (fase 3)', () => {
       .post(`/api/v1/organizations/${orgA}/customers/${c.id}/archive`)
       .set('Origin', ORIGIN)
       .send({});
-    const res = await attA
-      .post(`/api/v1/organizations/${orgA}/orders`)
-      .set('Origin', ORIGIN)
-      .send({
-        customerId: c.id,
-        addressId: c.addressId,
-        equipmentId: c.equipmentId,
-        description: 'Depois de arquivar',
-      });
+    const res = await attA.post(`/api/v1/organizations/${orgA}/orders`).set('Origin', ORIGIN).send({
+      customerId: c.id,
+      addressId: c.addressId,
+      equipmentId: c.equipmentId,
+      description: 'Depois de arquivar',
+    });
     expect(res.status).toBe(422);
     expect((await attA.get(`/api/v1/organizations/${orgA}/orders/${o.id}`)).status).toBe(200);
   });

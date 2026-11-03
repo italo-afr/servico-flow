@@ -61,3 +61,42 @@ export function fixtures(app: NestExpressApplication, db: Db) {
 
   return { server, config, newOrg, invite, login, member };
 }
+
+export async function createCustomer(
+  agent: Agent,
+  orgId: string,
+  name = 'Padaria Exemplo (fictícia)',
+) {
+  const res = await agent
+    .post(`/api/v1/organizations/${orgId}/customers`)
+    .set('Origin', ORIGIN)
+    .send({
+      name,
+      phone: '(11) 90000-0000',
+      address: {
+        street: 'Rua Fictícia',
+        number: '100',
+        city: 'São Paulo',
+        state: 'sp',
+        postalCode: '01000-000',
+      },
+      equipment: { description: 'Split 12.000 BTU', brand: 'MarcaX', capacityBtu: 12000 },
+    });
+  if (res.status !== 201) throw new Error(`cliente: ${res.status} ${JSON.stringify(res.body)}`);
+  return res.body as { id: string; addressId: string; equipmentId: string };
+}
+
+export async function createOrder(
+  agent: Agent,
+  orgId: string,
+  c: { id: string; addressId: string; equipmentId: string },
+) {
+  const res = await agent.post(`/api/v1/organizations/${orgId}/orders`).set('Origin', ORIGIN).send({
+    customerId: c.id,
+    addressId: c.addressId,
+    equipmentId: c.equipmentId,
+    description: 'Não gela e pinga água',
+  });
+  if (res.status !== 201) throw new Error(`ordem: ${res.status} ${JSON.stringify(res.body)}`);
+  return res.body as { id: string; number: number; version: number };
+}
