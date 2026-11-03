@@ -22,7 +22,7 @@ painel, operação da fila, carga e ensaio de backup. Ver `docs/evidence/2026-11
 ## Verificações executadas
 
 lint, typecheck, 21 unitários, 72 de integração, 1 E2E, build, `pnpm audit`, carga de 120 s, backup/restore.
-CI configurado (`.github/workflows/ci.yml`), mas **ainda não houve execução observada no GitHub**.
+CI no GitHub (`.github/workflows/ci.yml`): jobs `verify` e `e2e` **passando** no commit 66e3b43 (run 41679128671). Uma execução anterior (fase 3) falhou só em `format:check`, corrigida no commit seguinte.
 
 ## Decisões novas e ADRs
 
