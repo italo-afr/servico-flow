@@ -171,4 +171,37 @@ describe('fotos privadas (fase 6: T17, T18)', () => {
       .send({ orderId: o2, contentType: 'image/png', sizeBytes: 10 });
     expect(r.status).toBe(409);
   });
+
+  it('cota da empresa em bytes é respeitada, inclusive com pedidos simultâneos', async () => {
+    const config = testConfig({ AUTH_RATE_LIMIT: 'false', STORAGE_QUOTA_BYTES_PER_ORG: '1000' });
+    const quotaApp = await createApp(config, db, storage);
+    await quotaApp.init();
+    const g = fixtures(quotaApp, db);
+    const o = await g.newOrg('Cota Pequena');
+    const a = (await g.member(o, 'ATTENDANT')).agent;
+    const ord = (await createOrder(a, o, await createCustomer(a, o))).id;
+    const init = (size: number) =>
+      a
+        .post(`/api/v1/organizations/${o}/attachments/initiate`)
+        .set('Origin', ORIGIN)
+        .send({ orderId: ord, contentType: 'image/png', sizeBytes: size });
+    // 4 × 300 bytes simultâneos com cota de 1000: no máximo 3 cabem
+    const results = await Promise.all([init(300), init(300), init(300), init(300)]);
+    expect(results.map((r) => r.status).sort()).toEqual([201, 201, 201, 409]);
+    expect(results.find((r) => r.status === 409)!.body.code).toBe('STORAGE_QUOTA_EXCEEDED');
+    await quotaApp.close();
+  });
+
+  it('limite por ordem vale sob concorrência', async () => {
+    const o3 = (await createOrder(att, org, await createCustomer(att, org))).id;
+    const reqs = Array.from({ length: 14 }, () =>
+      att
+        .post(api('/attachments/initiate'))
+        .set('Origin', ORIGIN)
+        .send({ orderId: o3, contentType: 'image/png', sizeBytes: 10 }),
+    );
+    const codes = (await Promise.all(reqs)).map((r) => r.status);
+    expect(codes.filter((c) => c === 201)).toHaveLength(10);
+    expect(codes.filter((c) => c === 409)).toHaveLength(4);
+  });
 });

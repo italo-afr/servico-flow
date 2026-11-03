@@ -10,6 +10,7 @@ const { values } = parseArgs({
     seconds: { type: 'string', default: '120' },
     email: { type: 'string', default: 'ana@clima-norte.example.com' },
     password: { type: 'string', default: 'demo-senha-123' },
+    only: { type: 'string' }, // ex.: --only=orders.detail
   },
 });
 const base = values.base;
@@ -62,6 +63,8 @@ const scenarios = [
   },
   { name: 'dashboard', weight: 10, url: (o) => `/api/v1/organizations/${o}/dashboard` },
 ];
+if (values.only)
+  scenarios.splice(0, scenarios.length, ...scenarios.filter((s) => s.name === values.only));
 const total = scenarios.reduce((s, x) => s + x.weight, 0);
 const chooser = () => {
   let r = Math.random() * total;

@@ -18,11 +18,12 @@ import { audit } from '../audit/audit.js';
 import { AppError, conflict, invalid, notFound } from '../common/errors.js';
 import { ZodPipe } from '../common/http.js';
 import { log } from '../common/logger.js';
-import type { Db } from '../db/pool.js';
+import { withTransaction, type Db } from '../db/pool.js';
 import { CurrentMember, Public, RequestId, Requires, type Member } from '../identity/context.js';
 import { orderDetailExtras } from '../orders/detail-extras.js';
 import { technicianOrderFilter } from '../orders/service.js';
-import { DB, STORAGE } from '../tokens.js';
+import { CONFIG, DB, STORAGE } from '../tokens.js';
+import type { AppConfig } from '../config.js';
 import { IMAGE_LIMITS, validateAndReencode } from './images.js';
 import { LocalStorage, type ObjectStorage } from './storage.js';
 
@@ -67,6 +68,7 @@ export class AttachmentsController {
   constructor(
     @Inject(DB) private readonly db: Db,
     @Inject(STORAGE) private readonly storage: ObjectStorage,
+    @Inject(CONFIG) private readonly config: AppConfig,
   ) {}
 
   /** 1) Autoriza o upload: valida permissão e quota, cria registro PENDENTE e URL curta. */
@@ -86,31 +88,45 @@ export class AttachmentsController {
       );
       if (!a.rowCount) throw invalid('Visita inválida para esta ordem.');
     }
-    const count = await this.db.query<{ n: number }>(
-      `SELECT count(*)::int AS n FROM attachments WHERE organization_id = $1 AND order_id = $2 AND status IN ('PENDING','READY')`,
-      [m.organizationId, b.orderId],
-    );
-    if ((count.rows[0]?.n ?? 0) >= IMAGE_LIMITS.maxPerOrder) {
-      throw conflict('QUOTA_EXCEEDED', `Limite de ${IMAGE_LIMITS.maxPerOrder} fotos por ordem.`);
-    }
-    // Chave gerada pelo servidor; nome enviado pelo usuário não é usado.
-    const rawKey = `quarantine/${m.organizationId}/${randomUUID()}`;
-    const r = await this.db.query<{ id: string }>(
-      `INSERT INTO attachments (organization_id, order_id, appointment_id, uploaded_by, raw_key, declared_type, declared_size)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
-      [
-        m.organizationId,
-        b.orderId,
-        b.appointmentId ?? null,
-        m.userId,
-        rawKey,
-        b.contentType,
-        b.sizeBytes,
-      ],
-    );
+    // Contagem e inserção na MESMA transação, com lock por empresa: envios simultâneos
+    // não ultrapassam as cotas (por ordem e por empresa).
+    const rawKey = `quarantine/${m.organizationId}/${randomUUID()}`; // chave do servidor, nunca o nome do usuário
+    const id = await withTransaction(this.db, async (tx) => {
+      await tx.query(`SELECT pg_advisory_xact_lock(hashtextextended($1, 727))`, [m.organizationId]);
+      const usage = await tx.query<{ order_count: number; org_bytes: string }>(
+        `SELECT count(*) FILTER (WHERE order_id = $2)::int AS order_count,
+                coalesce(sum(CASE WHEN status = 'READY' THEN size_bytes ELSE declared_size END), 0)::bigint AS org_bytes
+           FROM attachments WHERE organization_id = $1 AND status IN ('PENDING', 'READY')`,
+        [m.organizationId, b.orderId],
+      );
+      const u = usage.rows[0]!;
+      if (u.order_count >= IMAGE_LIMITS.maxPerOrder) {
+        throw conflict('QUOTA_EXCEEDED', `Limite de ${IMAGE_LIMITS.maxPerOrder} fotos por ordem.`);
+      }
+      if (Number(u.org_bytes) + b.sizeBytes > this.config.STORAGE_QUOTA_BYTES_PER_ORG) {
+        throw conflict(
+          'STORAGE_QUOTA_EXCEEDED',
+          'A empresa atingiu o limite de armazenamento de fotos. Fale com o administrador.',
+        );
+      }
+      const r = await tx.query<{ id: string }>(
+        `INSERT INTO attachments (organization_id, order_id, appointment_id, uploaded_by, raw_key, declared_type, declared_size)
+         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+        [
+          m.organizationId,
+          b.orderId,
+          b.appointmentId ?? null,
+          m.userId,
+          rawKey,
+          b.contentType,
+          b.sizeBytes,
+        ],
+      );
+      return r.rows[0]!.id;
+    });
     const uploadUrl = await this.storage.presignPut(rawKey, b.contentType, URL_TTL_SECONDS);
     return {
-      id: r.rows[0]!.id,
+      id,
       uploadUrl,
       method: 'PUT',
       headers: { 'content-type': b.contentType },

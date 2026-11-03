@@ -28,6 +28,12 @@ const schema = z.object({
     .optional()
     .or(z.literal('').transform(() => undefined)),
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
+  // Cota de fotos por empresa (proposta: 2 GiB). Fotos são reprocessadas para WebP ≤ 2560 px.
+  STORAGE_QUOTA_BYTES_PER_ORG: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(2 * 1024 * 1024 * 1024),
   STORAGE_LOCAL_DIR: z.string().default('.local-storage'),
   STORAGE_ENDPOINT: z.string().optional(),
   STORAGE_REGION: z.string().default('us-east-1'),

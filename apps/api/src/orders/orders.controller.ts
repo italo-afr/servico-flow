@@ -236,15 +236,18 @@ export class OrdersController {
       // Técnico vê o necessário ao trabalho: sem e-mail do cliente nem valores.
       delete order.customer.email;
     }
-    const events = await this.db.query(
-      `SELECT ev.id, ev.type, ev.data, ev.actor_type AS "actorType", u.name AS "actorName", ev.created_at AS "createdAt"
-         FROM order_events ev LEFT JOIN "user" u ON u.id = ev.actor_user_id
-        WHERE ev.organization_id = $1 AND ev.order_id = $2 ORDER BY ev.id`,
-      [m.organizationId, id],
-    );
-    const extras: Record<string, unknown> = {};
-    for (const [key, load] of Object.entries(orderDetailExtras))
-      extras[key] = await load(this.db, m, id);
+    // Linha do tempo e seções extras são independentes: consultas em paralelo (OP-02).
+    const entries = Object.entries(orderDetailExtras);
+    const [events, ...loaded] = await Promise.all([
+      this.db.query(
+        `SELECT ev.id, ev.type, ev.data, ev.actor_type AS "actorType", u.name AS "actorName", ev.created_at AS "createdAt"
+           FROM order_events ev LEFT JOIN "user" u ON u.id = ev.actor_user_id
+          WHERE ev.organization_id = $1 AND ev.order_id = $2 ORDER BY ev.id`,
+        [m.organizationId, id],
+      ),
+      ...entries.map(([, load]) => load(this.db, m, id)),
+    ]);
+    const extras = Object.fromEntries(entries.map(([key], i) => [key, loaded[i]]));
     return { ...order, events: events.rows, ...extras };
   }
 
