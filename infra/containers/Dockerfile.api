@@ -19,6 +19,7 @@ WORKDIR /app
 COPY --from=build /out ./
 COPY database/migrations /database/migrations
 ENV MIGRATIONS_DIR=/database/migrations METRICS_PORT=9464 WORKER_METRICS_PORT=9465
+RUN mkdir -p /data/storage && chown node:node /data/storage
 USER node
 EXPOSE 3001 9464 9465
 CMD ["node", "dist/main.js"]

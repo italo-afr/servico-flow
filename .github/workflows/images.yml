@@ -106,3 +106,46 @@ jobs:
           echo "### Imagens publicadas" >> "$GITHUB_STEP_SUMMARY"
           echo "- $REGISTRY/servicoflow-api:${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
           echo "- $REGISTRY/servicoflow-web:${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+
+  demo-smoke:
+    # Sobe a demo de um comando (infra/demo) com as imagens RECÉM-PUBLICADAS e percorre
+    # login → convite → e-mail entregue no Mailpit, passando pelo Caddy.
+    needs: build-test-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: docker compose up (demo)
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: docker compose -f infra/demo/docker-compose.yml up -d --wait --wait-timeout 180
+      - name: Jornada mínima pela porta da demo
+        run: |
+          set -euo pipefail
+          B=http://localhost:8080; O="Origin: http://localhost:8080"
+          curl -fsS $B/ | grep -q 'ServiçoFlow'
+          curl -fsS -c jar -H "$O" -H 'content-type: application/json' \
+            -d '{"email":"ana@clima-norte.example.com","password":"demo-senha-123"}' $B/api/auth/sign-in/email > /dev/null
+          ORG=$(curl -fsS -b jar $B/api/v1/me | jq -r '.memberships[0].organizationId')
+          curl -fsS -b jar -H "$O" -H 'content-type: application/json' \
+            -d '{"email":"nova.pessoa@example.com","role":"TECHNICIAN"}' $B/api/v1/organizations/$ORG/invitations > /dev/null
+          for i in $(seq 1 30); do
+            n=$(curl -fsS http://localhost:8025/api/v1/messages | jq '.total')
+            [ "$n" -ge 1 ] && break; sleep 2
+          done
+          curl -fsS http://localhost:8025/api/v1/messages | jq -e '.messages[0].To[0].Address == "nova.pessoa@example.com"'
+          echo "### Demo verificada: login, convite e e-mail entregue no Mailpit" >> "$GITHUB_STEP_SUMMARY"
+      - name: Logs em caso de falha
+        if: failure()
+        run: docker compose -f infra/demo/docker-compose.yml logs --tail 80

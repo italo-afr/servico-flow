@@ -1,0 +1,13 @@
+# Demo local: HTTP simples na porta 8080, mesma origem para web e API.
+:8080 {
+	request_body {
+		max_size 6MB
+	}
+	header Referrer-Policy no-referrer
+	handle /api/* {
+		reverse_proxy api:3001
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}
