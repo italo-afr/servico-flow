@@ -16,11 +16,13 @@ x-app: &app
     DATABASE_URL: postgres://servicoflow:servicoflow@postgres:5432/servicoflow_demo
     PUBLIC_APP_URL: http://localhost:8080
     SESSION_SECRET: demo-local-somente-demo-local-somente-123
-    TOKEN_PAYLOAD_ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+    # entre aspas: sem elas o YAML lê só dígitos como NÚMERO (bug pego pelo CI)
+    TOKEN_PAYLOAD_ENCRYPTION_KEY: 'de0de0de0de0de0de0de0de0de0de0de0de0de0de0de0de0de0de0de0de0de0d'
     SMTP_URL: smtp://mailpit:1025
     EMAIL_FROM: 'ServiçoFlow Demo <demo@servicoflow.local>'
     EMAIL_ALLOWED_RECIPIENTS: '@example.com,@clima-norte.example.com,@gelo-sul.example.com'
     OPS_ALERT_EMAIL: ops@example.com
+    TRIAGE_SUGGESTIONS: 'true' # experimental (ADR-0010)
     STORAGE_DRIVER: local
     STORAGE_LOCAL_DIR: /data/storage
   volumes: [storage:/data/storage]

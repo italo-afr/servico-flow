@@ -27,5 +27,6 @@ export interface MeMembership {
 export interface Me {
   user: { id: string; email: string; name: string };
   memberships: MeMembership[];
+  features?: { triageSuggestions: boolean };
 }
 export const getMe = () => api<Me>('/api/v1/me');

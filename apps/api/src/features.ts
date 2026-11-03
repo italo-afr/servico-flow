@@ -3,6 +3,7 @@ import {
   LocalStorageController,
 } from './attachments/attachments.controller.js';
 import { OpsController } from './ops/ops.controller.js';
+import { TriageController } from './triage/triage.controller.js';
 import { CustomersController } from './customers/customers.controller.js';
 import { OrdersController } from './orders/orders.controller.js';
 import { PublicQuoteController } from './quotes/public-quote.controller.js';
@@ -19,4 +20,5 @@ export const FEATURE_CONTROLLERS = [
   AttachmentsController,
   LocalStorageController,
   OpsController,
+  TriageController,
 ];

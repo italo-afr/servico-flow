@@ -13,7 +13,8 @@ import {
   type Member,
 } from '../identity/context.js';
 import { ROLES } from '../identity/policy.js';
-import { DB } from '../tokens.js';
+import { CONFIG, DB } from '../tokens.js';
+import type { AppConfig } from '../config.js';
 
 const roleSchema = z.strictObject({ role: z.enum(ROLES) });
 
@@ -29,7 +30,10 @@ async function assertNotLastAdmin(tx: Tx, organizationId: string, membershipId: 
 
 @Controller()
 export class MembersController {
-  constructor(@Inject(DB) private readonly db: Db) {}
+  constructor(
+    @Inject(DB) private readonly db: Db,
+    @Inject(CONFIG) private readonly config: AppConfig,
+  ) {}
 
   @Get('me')
   async me(@CurrentUser() user: AuthUser) {
@@ -39,7 +43,11 @@ export class MembersController {
         WHERE m.user_id = $1 AND m.status = 'ACTIVE' ORDER BY o.name`,
       [user.id],
     );
-    return { user, memberships: r.rows };
+    return {
+      user,
+      memberships: r.rows,
+      features: { triageSuggestions: this.config.TRIAGE_SUGGESTIONS },
+    };
   }
 
   @Get('organizations/:orgId/members')

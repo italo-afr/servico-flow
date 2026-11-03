@@ -19,6 +19,11 @@ const schema = z.object({
   SMTP_URL: z.string().optional(),
   EMAIL_ALLOWED_RECIPIENTS: z.string().optional(),
   RELEASE_SHA: z.string().default('dev'),
+  // Funcionalidade experimental (ADR-0010): desligada por padrão; 'false' desliga na hora.
+  TRIAGE_SUGGESTIONS: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
   // Porta INTERNA de métricas Prometheus (0 desliga). Nunca publicar no proxy.
   METRICS_PORT: z.coerce.number().int().min(0).max(65535).default(9464),
   WORKER_METRICS_PORT: z.coerce.number().int().min(0).max(65535).default(9465),

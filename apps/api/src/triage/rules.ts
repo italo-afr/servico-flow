@@ -33,9 +33,15 @@ export interface TriageSuggestion {
 /** Ordem de prioridade quando há mais de um sintoma (justificativas no rationale do dataset). */
 const RULES: { category: Exclude<TriageCategory, 'UNKNOWN'>; patterns: RegExp[] }[] = [
   // Código de erro orienta o diagnóstico: vem primeiro.
-  { category: 'ERROR_CODE', patterns: [/\bcodigo\b/, /\berro\b/, /\bpisca/, /\b[a-z]{1,2}\d{1,2}\b/] },
+  {
+    category: 'ERROR_CODE',
+    patterns: [/\bcodigo\b/, /\berro\b/, /\bpisca/, /\b[a-z]{1,2}\d{1,2}\b/],
+  },
   // Vazamento pode causar dano (parede, móveis, piso molhado).
-  { category: 'WATER_LEAK', patterns: [/\bagua\b/, /\bping/, /\bvaz/, /\bgotej/, /\bgoteir/, /\bescorr/, /\bdreno\b/] },
+  {
+    category: 'WATER_LEAK',
+    patterns: [/\bagua\b/, /\bping/, /\bvaz/, /\bgotej/, /\bgoteir/, /\bescorr/, /\bdreno\b/],
+  },
   {
     category: 'INSUFFICIENT_COOLING',
     patterns: [
@@ -52,18 +58,50 @@ const RULES: { category: Exclude<TriageCategory, 'UNKNOWN'>; patterns: RegExp[] 
   },
   {
     category: 'NOT_TURNING_ON',
-    patterns: [/\bnao liga\b/, /\bnao ligou\b/, /\bnao quer ligar\b/, /\bdesligou sozinho\b/, /\bnenhuma luz\b/, /\bnao acende\b/, /\bmorto\b/],
+    patterns: [
+      /\bnao liga\b/,
+      /\bnao ligou\b/,
+      /\bnao quer ligar\b/,
+      /\bdesligou sozinho\b/,
+      /\bnenhuma luz\b/,
+      /\bnao acende\b/,
+      /\bmorto\b/,
+    ],
   },
-  { category: 'BAD_SMELL', patterns: [/\bcheiro\b/, /\bmofo\b/, /\bodor\b/, /\bfedor\b/, /\bqueimad/] },
-  { category: 'NOISE', patterns: [/\bbarulh/, /\bruido\b/, /\bestalo\b/, /\bzumbido\b/, /\bvibra/, /\bchiado\b/, /\bbatida\b/] },
-  { category: 'PREVENTIVE_MAINTENANCE', patterns: [/\blimpez/, /\bhigieniz/, /\bpreventiv/, /\bfiltros?\b/] },
+  {
+    category: 'BAD_SMELL',
+    patterns: [/\bcheiro\b/, /\bmofo\b/, /\bodor\b/, /\bfedor\b/, /\bqueimad/],
+  },
+  {
+    category: 'NOISE',
+    patterns: [
+      /\bbarulh/,
+      /\bruido\b/,
+      /\bestalo\b/,
+      /\bzumbido\b/,
+      /\bvibra/,
+      /\bchiado\b/,
+      /\bbatida\b/,
+    ],
+  },
+  {
+    category: 'PREVENTIVE_MAINTENANCE',
+    patterns: [/\blimpez/, /\bhigieniz/, /\bpreventiv/, /\bfiltros?\b/],
+  },
   { category: 'INSTALLATION', patterns: [/\binstal/, /\bmudar\b.*\blugar\b/] },
 ];
 
 /** Texto do cliente é dado, não instrução: tentativas de comando forçam revisão humana. */
-const INJECTION = [/\bignore\b/, /\binstrucoes?\b/, /\bsistema\s*:/, /\bcategoria\s*=/, /\bpreco\s*=/];
+const INJECTION = [
+  /\bignore\b/,
+  /\binstrucoes?\b/,
+  /\bsistema\s*:/,
+  /\bcategoria\s*=/,
+  /\bpreco\s*=/,
+];
 
-const BRANDS = /\b(lg|samsung|midea|daikin|consul|gree|elgin|springer|carrier|fujitsu|philco|electrolux|komeco|agratto|tcl|hitachi|britania)\b/;
+const BRANDS =
+  /\b(lg|samsung|midea|daikin|consul|gree|elgin|springer|carrier|fujitsu|philco|electrolux|komeco|agratto|tcl|hitachi|britania)\b/;
 const CODE = /\b[a-z]{1,2}\d{1,2}\b/;
 
 const QUESTIONS: Record<MissingInfo, string> = {
@@ -85,7 +123,9 @@ export function normalize(text: string): string {
 export function suggestTriage(description: string): TriageSuggestion {
   const t = normalize(description.slice(0, 4000));
   const injection = INJECTION.some((p) => p.test(t));
-  const signals = injection ? [] : RULES.filter((r) => r.patterns.some((p) => p.test(t))).map((r) => r.category);
+  const signals = injection
+    ? []
+    : RULES.filter((r) => r.patterns.some((p) => p.test(t))).map((r) => r.category);
   const category: TriageCategory = signals[0] ?? 'UNKNOWN';
   const missing: MissingInfo[] = [];
   // Capacidade sozinha não identifica o aparelho: exige a marca (rótulo do dataset).

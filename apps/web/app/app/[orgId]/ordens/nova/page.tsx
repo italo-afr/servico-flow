@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CustomerForm } from '@/components/customer-form';
+import { TriageHint } from '@/components/triage-hint';
 import { useOrg } from '@/components/org';
 import { ErrorAlert, Field, useAction } from '@/components/ui';
 import { api } from '@/lib/api';
@@ -176,6 +177,7 @@ export default function NewOrderPage() {
               onChange={(e) => setDescription(e.target.value)}
             />
           </Field>
+          <TriageHint description={description} />
           <Field label="Prioridade" name="priority" error={submit.error}>
             <select id="priority" value={priority} onChange={(e) => setPriority(e.target.value)}>
               <option value="LOW">Baixa</option>
