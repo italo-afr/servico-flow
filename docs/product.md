@@ -120,9 +120,9 @@ Metas não são resultados.
 
 | Item | Estado |
 |---|---|
-| Orçamento mensal para infraestrutura | **Não informado** — necessário antes da fase 10 |
-| Horas disponíveis por semana | **Não informado** — o brief usa 15 h/semana como referência (12–20 semanas) |
-| Empresa parceira para piloto | **Não identificada** — projeto segue como demonstração técnica |
+| Orçamento mensal para infraestrutura | **Fictício** (sem dado real): R$ 150/mês como teto de planejamento; revisar antes de contratar qualquer serviço na fase 10 |
+| Horas disponíveis por semana | **Fictício** (sem dado real): 15 h/semana → 12–20 semanas para o marco B (brief 9.2); reestimar após 2 fatias |
+| Empresa parceira para piloto | **Não existe** — dados e entrevistas fictícios; projeto é demonstração técnica |
 | Stack: manter TypeScript/Next.js/NestJS? | Assumido **sim** (brief §2); mudar exige registro antes da fase 1 |
 | Domínio e conta de hospedagem | Não necessários até a fase 10 |
 

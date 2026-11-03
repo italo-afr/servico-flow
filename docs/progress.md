@@ -6,7 +6,7 @@ Marco A (piloto funcional) — **fase 0 concluída como hipótese documentada**;
 ## Última entrega concluída
 2026-11-03 — Fase 0: repositório criado, brief salvo, materiais de descoberta, recorte de produto e backlog.
 - `docs/project-brief.md` — especificação normativa.
-- `docs/discovery.md` — roteiro, consentimento, modelo de registro, hipóteses H1–H8. **Nenhuma entrevista realizada.**
+- `docs/discovery.md` — roteiro, consentimento, modelo de registro, hipóteses H1–H8 e 2 entrevistas **fictícias** (decisão do responsável; não são evidência).
 - `docs/product.md` — hipótese de valor, personas, fluxo atual (hipotético) × proposto, exemplo ponta a ponta sintético, conjunto do piloto, pendências.
 - `docs/backlog.md` — tarefas verticais com aceite e riscos; F-01 pronta.
 
@@ -40,12 +40,11 @@ Nenhum ADR escrito ainda (F-03).
 - Recorte não validado (H1–H8). Prioridade entre aprovação (H2) e agenda (H4) pode mudar.
 - H6: se clientes não usam e-mail, o link privado precisaria ser copiável pelo atendente — exige ADR antes da fase 4.
 - Prisma não modela constraints de exclusão nativamente — validar migration SQL manual em F-01.
-- O container de desenvolvimento é efêmero: o repositório **ainda não tem remoto**. Sem push, o trabalho se perde.
+- Sem dados reais: entrevistas, orçamento (R$ 150/mês) e horas (15 h/semana) são fictícios. O estudo de caso deve dizer isso.
 
 ## Bloqueios externos
-- Entrevistas (D-01): dependem do responsável.
-- Remoto Git (GitHub) para persistir o trabalho e habilitar CI (F-02).
-- Orçamento mensal e horas/semana: não informados (necessários antes da fase 10 / para reestimar).
+- Entrevistas reais (D-01): não há acesso a empresas; substituídas por simulação fictícia.
+- Remoto: `github.com/italo-afr/servi-o-flow` (configurado em 2026-11-03).
 
 ## Próxima tarefa pronta
 **F-01 — Esqueleto andante** (`docs/backlog.md`): web → `/api/v1/health/ready` → PostgreSQL, com Compose, configuração validada, primeira migration e seed protegido.

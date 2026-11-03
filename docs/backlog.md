@@ -13,7 +13,7 @@ de épico e serão detalhadas quando entrarem em `Pronto`.
 
 | ID | Título | Fase | Marco | Estado | Depende de |
 |---|---|---|---|---|---|
-| D-01 | Conduzir entrevistas de descoberta | 0 | A | **Bloqueado** (ação do responsável) | — |
+| D-01 | Conduzir entrevistas de descoberta | 0 | A | Substituída por simulação fictícia (sem acesso a usuários reais) | — |
 | F-01 | Esqueleto andante: web → `/api/v1/health/ready` → PostgreSQL | 1 | A | **Pronto** | — |
 | F-02 | CI inicial (lockfile, lint, tipos, testes, build) | 1 | A | Pronto | F-01 |
 | F-03 | ADRs iniciais e documentação de setup | 1 | A | Pronto | F-01 |

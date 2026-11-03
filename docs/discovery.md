@@ -1,9 +1,9 @@
 # Descoberta — ServiçoFlow
 
-> **Estado em 2026-11-03: nenhuma entrevista realizada.** Este arquivo contém o
-> roteiro, o modelo de registro e as hipóteses a validar. Nada aqui é
-> observação de campo até que uma seção "Registro de conversa" seja preenchida
-> com data e origem reais.
+> **Estado em 2026-11-03: nenhuma entrevista real realizada.** Por decisão do
+> responsável, o projeto usa **entrevistas fictícias** (seção 8) para exercitar o
+> processo de descoberta. Elas **não são evidência**: servem para dar forma ao recorte
+> de uma demonstração técnica. Nenhuma hipótese pode ser marcada como validada com base nelas.
 
 ## 1. Objetivo da descoberta
 
@@ -151,9 +151,38 @@ Estimativas relatadas são "relato", não medição; marque-as assim.
 
 ## 8. Registros de conversa
 
-_Nenhuma conversa registrada até o momento._
+### Conversas reais
+_Nenhuma conversa real registrada._
+
+### Conversas FICTÍCIAS (simulação — não usar como evidência)
+
+> Personagens e empresa inventados para orientar a demonstração. Qualquer número
+> abaixo é inventado. No estudo de caso, citar como "cenário fictício".
+
+#### Fictícia 1 — 2026-11-03
+- Empresa: "Clima Norte Manutenção" (fictícia) — 1 administradora, 1 atendente, 2 técnicos
+- Função: administradora (fictícia)
+- Processo descrito: pedidos chegam por WhatsApp e telefone; orçamento enviado como
+  texto na conversa; aprovação é um "pode fazer"; agenda em planilha compartilhada.
+- Problemas descritos:
+  | Problema | Exemplo (fictício) | Frequência | Impacto |
+  |---|---|---|---|
+  | Orçamento aprovado por mensagem, valor contestado depois | Cliente disse ter aprovado sem a recarga de gás | "algumas vezes por mês" | Desconto concedido para evitar conflito |
+  | Pedido esquecido na conversa | Mensagem de sexta só vista na terça | "às vezes" | Cliente contratou outra empresa |
+- Interpretação: reforçaria H1 e H2 **se fosse real**.
+
+#### Fictícia 2 — 2026-11-03
+- Empresa: a mesma (fictícia); função: técnico
+- Processo descrito: recebe endereço por mensagem de manhã; frequentemente vai ao local
+  antes de haver preço (diagnóstico); tem 4G na maioria dos locais, mas não em subsolos.
+- Problemas descritos: chega sem saber modelo do equipamento; fotos ficam na galeria pessoal.
+- Interpretação: reforçaria H3 e, parcialmente, H5 **se fosse real**.
+
+### Efeito das simulações no recorte
+Mantém-se o recorte do brief (prioridade: registro + orçamento versionado; agenda simples
+com proteção de sobreposição). As hipóteses H1–H8 continuam **não validadas**.
 
 ## 9. Limitações atuais
 
-- Zero entrevistas: todo o recorte de produto em `docs/product.md` é hipotético.
+- Zero entrevistas reais; apenas simulações fictícias. Todo o recorte em `docs/product.md` é hipotético.
 - Sem empresa parceira identificada: o projeto segue, por ora, como **demonstração técnica com dados sintéticos**.
