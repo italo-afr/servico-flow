@@ -13,6 +13,29 @@ Sistema web para pequenas empresas de manutenção de ar-condicionado acompanhar
 > depois de um smoke test. Não há empresa parceira:
 > entrevistas, empresas, clientes e orçamento de infraestrutura são **fictícios**.
 
+## Experimente em 1 minuto (Docker)
+
+```bash
+docker compose -f infra/demo/docker-compose.yml up -d
+```
+
+Abra http://localhost:8080 e entre com `beto@clima-norte.example.com` / `demo-senha-123` (atendente fictício).
+Os e-mails de convite e orçamento chegam em http://localhost:8025 (Mailpit). Essa demo usa as imagens
+publicadas em `ghcr.io/italo-afr/servicoflow-*` e é verificada no CI a cada push (login, convite e
+e-mail entregue). Para zerar os dados:
+
+```bash
+docker compose -f infra/demo/docker-compose.yml down -v
+```
+
+## Telas (dados fictícios)
+
+| Painel                                    | Ordem com orçamento                                   | Cliente decide (celular)                                      | Técnico executa (celular)                                    |
+| ----------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------ |
+| ![Painel](docs/screenshots/01-painel.png) | ![Ordem](docs/screenshots/03-ordem-com-orcamento.png) | ![Cliente](docs/screenshots/04-cliente-orcamento-celular.png) | ![Técnico](docs/screenshots/08-tecnico-execucao-celular.png) |
+
+Mais em [`docs/screenshots/`](docs/screenshots/).
+
 ## Problema (hipótese, não validada)
 
 Pequenas empresas de manutenção podem perder pedidos, aprovações e histórico ao coordenar
@@ -46,12 +69,15 @@ por uma nova migration (`0005`).
 
 ## Números medidos (local, dados sintéticos)
 
-- **81** testes de integração contra PostgreSQL real, **21** unitários, **1** E2E da jornada no celular.
+- **85** testes de integração contra PostgreSQL real, **28** unitários, **1** E2E da jornada no celular.
 - Carga de 120 s com 20 usuários virtuais e 10 mil ordens: **p95 57,6 ms, 0 erros, ~587 req/s**
   (um contêiner de 4 vCPU; não extrapolar).
 - Backup e restauração ensaiados: dados e totais idênticos, API sobe no banco restaurado.
 
-Detalhes: [`docs/evidence/2026-11-03-local.md`](docs/evidence/2026-11-03-local.md).
+- Triagem assistida **sem IA** (regras): **23/30 (76,7%)** nos casos reservados, abaixo do gate de 90% →
+  desligada por padrão. A IA não foi lançada: faltou orçamento e o gate não foi atingido (ADR-0010).
+
+Detalhes: [`docs/evidence/`](docs/evidence/) · Estudo de caso: [`docs/case-study.md`](docs/case-study.md).
 
 ## Arquitetura
 
@@ -89,7 +115,7 @@ pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm t
 
 - [`docs/security.md`](docs/security.md): modelo de ameaças, matriz de papéis e dados pessoais.
 - [`docs/runbooks.md`](docs/runbooks.md): 10 procedimentos de incidente.
-- [`docs/adr/`](docs/adr/): 9 decisões registradas.
+- [`docs/adr/`](docs/adr/): 10 decisões registradas.
 - **Monitoramento:** métricas Prometheus em portas internas e 9 regras de alerta com testes unitários (validadas pelo `promtool` no CI). O worker também tem um avaliador de alertas que envia e-mail mesmo sem Prometheus. Ver ADR-0009.
 
 **Limites conhecidos:**
@@ -103,10 +129,12 @@ pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm t
 ## Documentação de produto
 
 [`docs/project-brief.md`](docs/project-brief.md) (especificação) · [`docs/product.md`](docs/product.md) ·
-[`docs/backlog.md`](docs/backlog.md) · [`docs/progress.md`](docs/progress.md) · [`docs/costs.md`](docs/costs.md)
+[`docs/backlog.md`](docs/backlog.md) · [`docs/progress.md`](docs/progress.md) · [`docs/costs.md`](docs/costs.md) ·
+[`docs/case-study.md`](docs/case-study.md) · [`docs/demo-script.md`](docs/demo-script.md) (roteiro do vídeo) ·
+[`docs/interview-prep.md`](docs/interview-prep.md)
 
 ## Próximos passos
 
-1. Gravar o vídeo de demonstração e escrever o estudo de caso (brief 13).
-2. Fazer uso acompanhado com uma empresa real, se houver uma disponível.
-3. Avaliar a triagem com IA comparando com um baseline por regras (opcional).
+1. Gravar o vídeo seguindo [`docs/demo-script.md`](docs/demo-script.md).
+2. Fazer uso acompanhado com uma empresa real, se houver uma disponível: validar H1, H2 e H6.
+3. Triagem com IA: só com orçamento aprovado e um dataset 2.0 revisado por um técnico.

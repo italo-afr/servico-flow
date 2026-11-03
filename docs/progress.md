@@ -2,6 +2,8 @@
 
 ## Marco e fase atuais
 
+**Atualização 2026-11-03 (fim do dia):** todas as fases executáveis sem hospedagem nem usuários reais estão concluídas. Marco C avaliado: IA não lançada (ADR-0010). Material de portfólio pronto (brief 13).
+
 Marco A (piloto funcional) **implementado e verificado localmente, com dados fictícios**.
 Fases 1–9 entregues localmente, incluindo monitoramento e alertas. **Fase 10 cancelada por decisão do responsável:** projeto de portfólio, sem hospedagem. Imagens publicadas no GHCR pelo CI. Fase 11 sem empresa parceira.
 Fase 12 (IA) não iniciada.
@@ -46,9 +48,30 @@ entrevistas e orçamento fictícios por decisão do responsável.
 
 ## Próxima tarefa pronta
 
-OP-02 (otimizar detalhe da ordem), OP-03 (quota de storage por empresa), roteiro do vídeo e estudo de caso (brief 13).
-Fase 12 (IA) é opcional.
+Nenhuma tarefa técnica pronta sem dependência externa. Pendências que dependem do responsável:
+gravar o vídeo (`docs/demo-script.md`), tornar públicos os pacotes do GHCR e, se surgir uma empresa,
+a fase 11 (uso acompanhado).
 
 ## Como reproduzir a última entrega
 
 `docs/setup.md` → `pnpm db:migrate && pnpm db:seed && pnpm dev` → entrar como `beto@clima-norte.example.com` / `demo-senha-123`.
+
+## Entregas finais (2026-11-03)
+
+- OP-02: detalhe da ordem com consultas em paralelo (ganho pequeno e medido).
+- OP-03: cota de fotos por empresa e limite por ordem válidos sob concorrência.
+- Demo de um comando (`infra/demo`), verificada no CI com as imagens publicadas.
+- Fase 12: baseline por regras e dataset congelado; 76,7% nos reservados → desligado por padrão.
+- Brief 13: capturas (`docs/screenshots/`), estudo de caso, roteiro do vídeo, preparação para entrevista.
+
+## Itens do brief que NÃO puderam ser cumpridos (e por quê)
+
+| Item                                                         | Motivo                                               |
+| ------------------------------------------------------------ | ---------------------------------------------------- |
+| Entrevistas e linha de base reais (fase 0)                   | sem acesso a empresas; simulação fictícia            |
+| Sessão de uso acompanhado por outra pessoa (fase 8)          | não há outra pessoa disponível nesta sessão          |
+| Staging, produção, HTTPS, DNS, backups no provedor (fase 10) | decisão: não hospedar                                |
+| Piloto acompanhado (fase 11)                                 | sem empresa parceira                                 |
+| IA avaliada contra baseline (fase 12)                        | sem orçamento de API                                 |
+| Vídeo (brief 13.3)                                           | precisa ser gravado pelo responsável; roteiro pronto |
+| T26 (reinício + release anterior)                            | sem ambiente hospedado                               |

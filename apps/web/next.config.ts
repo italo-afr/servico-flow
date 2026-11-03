@@ -7,6 +7,7 @@ const apiOrigin = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
 const config: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  devIndicators: false,
   async rewrites() {
     return process.env.NODE_ENV === 'production' && !process.env.API_INTERNAL_URL
       ? []
