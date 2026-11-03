@@ -34,14 +34,14 @@ Exemplo completo com dados fictícios: [`docs/product.md` §5](docs/product.md).
 
 ## Decisões de engenharia que o projeto pretende demonstrar
 
-| Problema | Abordagem planejada |
-|---|---|
-| Dados de uma empresa vazando para outra | Autorização no servidor a cada requisição + chaves estrangeiras compostas `(organization_id, id)` |
-| Orçamento alterado depois de aceito | Versão enviada é imutável (snapshot); mudança gera nova versão e revoga o link anterior |
-| Clique duplo / duas abas aprovando | Decisão idempotente em transação; repetição devolve o resultado já registrado |
-| Dois agendamentos sobrepostos para o mesmo técnico | Constraint de exclusão do PostgreSQL sobre intervalos `[início, fim)` |
-| E-mail fora do ar no momento da aprovação | Outbox na mesma transação + worker com lease e retentativas |
-| Link de orçamento vazando | Token ≥256 bits, só o hash no banco, GET nunca decide |
+| Problema                                           | Abordagem planejada                                                                               |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Dados de uma empresa vazando para outra            | Autorização no servidor a cada requisição + chaves estrangeiras compostas `(organization_id, id)` |
+| Orçamento alterado depois de aceito                | Versão enviada é imutável (snapshot); mudança gera nova versão e revoga o link anterior           |
+| Clique duplo / duas abas aprovando                 | Decisão idempotente em transação; repetição devolve o resultado já registrado                     |
+| Dois agendamentos sobrepostos para o mesmo técnico | Constraint de exclusão do PostgreSQL sobre intervalos `[início, fim)`                             |
+| E-mail fora do ar no momento da aprovação          | Outbox na mesma transação + worker com lease e retentativas                                       |
+| Link de orçamento vazando                          | Token ≥256 bits, só o hash no banco, GET nunca decide                                             |
 
 Nada da tabela acima está implementado ainda.
 
@@ -52,19 +52,19 @@ Docker Compose · GitHub Actions. Versões serão fixadas na fase 1 após consul
 
 ## Roadmap
 
-| Fase | Entrega | Estado |
-|---|---|---|
-| 0 | Descoberta, recorte e backlog | ✅ Concluída (com dados fictícios) |
-| 1 | Esqueleto: web → API → PostgreSQL, Compose, CI | ⏭️ Próxima |
-| 2 | Login, empresas, convites, permissões | — |
-| 3 | Clientes, equipamentos e ordens | — |
-| 4 | Orçamentos versionados e decisão do cliente | — |
-| 5 | Agenda com prevenção de conflitos | — |
-| 6 | Área do técnico e fotos privadas | — |
-| 7 | Notificações confiáveis (outbox) | — |
-| 8–9 | Dashboard, segurança, desempenho, backup | — |
-| 10 | Staging e produção | — |
-| 11–12 | Uso acompanhado e IA opcional avaliada | — |
+| Fase  | Entrega                                        | Estado                             |
+| ----- | ---------------------------------------------- | ---------------------------------- |
+| 0     | Descoberta, recorte e backlog                  | ✅ Concluída (com dados fictícios) |
+| 1     | Esqueleto: web → API → PostgreSQL, Compose, CI | ⏭️ Próxima                         |
+| 2     | Login, empresas, convites, permissões          | —                                  |
+| 3     | Clientes, equipamentos e ordens                | —                                  |
+| 4     | Orçamentos versionados e decisão do cliente    | —                                  |
+| 5     | Agenda com prevenção de conflitos              | —                                  |
+| 6     | Área do técnico e fotos privadas               | —                                  |
+| 7     | Notificações confiáveis (outbox)               | —                                  |
+| 8–9   | Dashboard, segurança, desempenho, backup       | —                                  |
+| 10    | Staging e produção                             | —                                  |
+| 11–12 | Uso acompanhado e IA opcional avaliada         | —                                  |
 
 ## Documentação
 

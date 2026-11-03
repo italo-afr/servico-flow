@@ -21,12 +21,12 @@ Proposta: um lugar único onde
 
 ## 2. Personas (hipotéticas)
 
-| Persona | Contexto assumido | Objetivo | Restrição |
-|---|---|---|---|
-| **Administrador** (dono/sócio) | Também atende e às vezes executa | Saber o que está parado e quem faz o quê | Pouco tempo para configurar ferramentas |
-| **Atendente** | Recebe pedidos por telefone/mensagem | Registrar rápido, enviar orçamento, marcar visita sem conflito | Interrupções constantes; usa desktop e celular |
-| **Técnico** | Em campo, celular, conexão variável (H5) | Ver endereço/problema do dia; registrar o que fez | Mãos ocupadas; tela pequena; não deve ver valores por padrão |
-| **Cliente final** | Pessoa ou pequeno comércio | Entender o preço e decidir | Não cria conta; pode abrir o link só uma vez |
+| Persona                        | Contexto assumido                        | Objetivo                                                       | Restrição                                                    |
+| ------------------------------ | ---------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ |
+| **Administrador** (dono/sócio) | Também atende e às vezes executa         | Saber o que está parado e quem faz o quê                       | Pouco tempo para configurar ferramentas                      |
+| **Atendente**                  | Recebe pedidos por telefone/mensagem     | Registrar rápido, enviar orçamento, marcar visita sem conflito | Interrupções constantes; usa desktop e celular               |
+| **Técnico**                    | Em campo, celular, conexão variável (H5) | Ver endereço/problema do dia; registrar o que fez              | Mãos ocupadas; tela pequena; não deve ver valores por padrão |
+| **Cliente final**              | Pessoa ou pequeno comércio               | Entender o preço e decidir                                     | Não cria conta; pode abrir o link só uma vez                 |
 
 ## 3. Restrições do recorte (brief 1.2 e 4.2)
 
@@ -78,20 +78,20 @@ Cancelamento é possível em qualquer estado não terminal, com motivo (brief 5.
 Empresa sintética **"Clima Norte Manutenção"** (fuso `America/Sao_Paulo`): 1 administradora,
 1 atendente, 2 técnicos.
 
-| # | Quem | O que faz | Estado da ordem |
-|---|---|---|---|
-| 1 | Administradora | Empresa já criada por fluxo controlado; convida atendente e técnicos | — |
-| 2 | Atendente | Recebe ligação: "split da sala não gela e pinga água". Cadastra cliente "Padaria Exemplo (fictícia)", endereço e equipamento (split 12.000 BTU) | — |
-| 3 | Atendente | Abre a ordem **#0042** com a descrição | `OPEN` |
-| 4 | Atendente | Assume e inicia triagem | `TRIAGE` |
-| 5 | Atendente | Agenda visita de **diagnóstico** com Técnico 1, ter 09:00–10:00 | `TRIAGE` (diagnóstico não muda para `SCHEDULED`) |
-| 6 | Técnico 1 | No celular, inicia e conclui o diagnóstico: "dreno obstruído + baixa carga de gás"; 2 fotos | `TRIAGE` |
-| 7 | Atendente | Monta orçamento v1: limpeza de dreno R$ 180,00; recarga de gás R$ 350,00; desconto R$ 30,00 → **total R$ 500,00** (centavos: 50000). Validade 7 dias. Envia | `AWAITING_APPROVAL` |
-| 8 | Cliente | Abre o link (GET não decide), confere itens e clica em **Aceitar** + confirma | `APPROVED` |
-| 9 | Atendente | Agenda **execução** com Técnico 2, qui 14:00–16:00. Tentativa de 15:00–17:00 com o mesmo técnico em outra ordem recebe conflito | `SCHEDULED` |
-| 10 | Técnico 2 | Inicia a visita no local | `IN_PROGRESS` |
-| 11 | Técnico 2 | Registra o resumo de execução e fotos; conclui | `COMPLETED` |
-| 12 | Administradora | Vê a linha do tempo completa e a ordem fora das pendências | `COMPLETED` |
+| #   | Quem           | O que faz                                                                                                                                                   | Estado da ordem                                  |
+| --- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| 1   | Administradora | Empresa já criada por fluxo controlado; convida atendente e técnicos                                                                                        | —                                                |
+| 2   | Atendente      | Recebe ligação: "split da sala não gela e pinga água". Cadastra cliente "Padaria Exemplo (fictícia)", endereço e equipamento (split 12.000 BTU)             | —                                                |
+| 3   | Atendente      | Abre a ordem **#0042** com a descrição                                                                                                                      | `OPEN`                                           |
+| 4   | Atendente      | Assume e inicia triagem                                                                                                                                     | `TRIAGE`                                         |
+| 5   | Atendente      | Agenda visita de **diagnóstico** com Técnico 1, ter 09:00–10:00                                                                                             | `TRIAGE` (diagnóstico não muda para `SCHEDULED`) |
+| 6   | Técnico 1      | No celular, inicia e conclui o diagnóstico: "dreno obstruído + baixa carga de gás"; 2 fotos                                                                 | `TRIAGE`                                         |
+| 7   | Atendente      | Monta orçamento v1: limpeza de dreno R$ 180,00; recarga de gás R$ 350,00; desconto R$ 30,00 → **total R$ 500,00** (centavos: 50000). Validade 7 dias. Envia | `AWAITING_APPROVAL`                              |
+| 8   | Cliente        | Abre o link (GET não decide), confere itens e clica em **Aceitar** + confirma                                                                               | `APPROVED`                                       |
+| 9   | Atendente      | Agenda **execução** com Técnico 2, qui 14:00–16:00. Tentativa de 15:00–17:00 com o mesmo técnico em outra ordem recebe conflito                             | `SCHEDULED`                                      |
+| 10  | Técnico 2      | Inicia a visita no local                                                                                                                                    | `IN_PROGRESS`                                    |
+| 11  | Técnico 2      | Registra o resumo de execução e fotos; conclui                                                                                                              | `COMPLETED`                                      |
+| 12  | Administradora | Vê a linha do tempo completa e a ordem fora das pendências                                                                                                  | `COMPLETED`                                      |
 
 Variante: se no passo 8 o cliente pedisse para tirar a recarga, a atendente **revisa**:
 v1 é invalidada, o link de v1 é revogado e uma v2 é enviada (brief 5.1/5.2).
@@ -118,18 +118,18 @@ Metas não são resultados.
 
 ## 8. Pendências explícitas do responsável
 
-| Item | Estado |
-|---|---|
-| Orçamento mensal para infraestrutura | **Fictício** (sem dado real): R$ 150/mês como teto de planejamento; revisar antes de contratar qualquer serviço na fase 10 |
-| Horas disponíveis por semana | **Fictício** (sem dado real): 15 h/semana → 12–20 semanas para o marco B (brief 9.2); reestimar após 2 fatias |
-| Empresa parceira para piloto | **Não existe** — dados e entrevistas fictícios; projeto é demonstração técnica |
-| Stack: manter TypeScript/Next.js/NestJS? | Assumido **sim** (brief §2); mudar exige registro antes da fase 1 |
-| Domínio e conta de hospedagem | Não necessários até a fase 10 |
+| Item                                     | Estado                                                                                                                     |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Orçamento mensal para infraestrutura     | **Fictício** (sem dado real): R$ 150/mês como teto de planejamento; revisar antes de contratar qualquer serviço na fase 10 |
+| Horas disponíveis por semana             | **Fictício** (sem dado real): 15 h/semana → 12–20 semanas para o marco B (brief 9.2); reestimar após 2 fatias              |
+| Empresa parceira para piloto             | **Não existe** — dados e entrevistas fictícios; projeto é demonstração técnica                                             |
+| Stack: manter TypeScript/Next.js/NestJS? | Assumido **sim** (brief §2); mudar exige registro antes da fase 1                                                          |
+| Domínio e conta de hospedagem            | Não necessários até a fase 10                                                                                              |
 
 ## 9. Resultado esperado por marco
 
-| Marco | Resultado esperado | Condição de "feito" |
-|---|---|---|
-| **A — Piloto funcional** | Fluxo da seção 5 executável de ponta a ponta com persistência real, no celular e no desktop | Checklist brief 15.1; jornada percorrida por outra pessoa |
-| **B — V1 em produção** | Mesmo fluxo em HTTPS, com isolamento e concorrência testados, outbox recuperável, backup restaurado, runbooks | Checklist brief 15.2; evidências em `docs/evidence/` |
-| **C — IA avaliada** | Sugestão de triagem comparada a um baseline por regras; lançada só se passar no gate | Checklist brief 15.3 (opcional) |
+| Marco                    | Resultado esperado                                                                                            | Condição de "feito"                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **A — Piloto funcional** | Fluxo da seção 5 executável de ponta a ponta com persistência real, no celular e no desktop                   | Checklist brief 15.1; jornada percorrida por outra pessoa |
+| **B — V1 em produção**   | Mesmo fluxo em HTTPS, com isolamento e concorrência testados, outbox recuperável, backup restaurado, runbooks | Checklist brief 15.2; evidências em `docs/evidence/`      |
+| **C — IA avaliada**      | Sugestão de triagem comparada a um baseline por regras; lançada só se passar no gate                          | Checklist brief 15.3 (opcional)                           |

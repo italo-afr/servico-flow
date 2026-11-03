@@ -1,0 +1,20 @@
+FROM node:24.22.2-bookworm-slim AS build
+WORKDIR /repo
+RUN corepack enable
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/web/package.json apps/web/
+COPY packages/contracts/package.json packages/contracts/
+RUN pnpm install --frozen-lockfile --filter @servicoflow/web...
+COPY tsconfig.base.json ./
+COPY packages/contracts packages/contracts
+COPY apps/web apps/web
+RUN pnpm --filter @servicoflow/contracts build && pnpm --filter @servicoflow/web build
+
+FROM node:24.22.2-bookworm-slim
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
+WORKDIR /app
+COPY --from=build /repo/apps/web/.next/standalone ./
+COPY --from=build /repo/apps/web/.next/static ./apps/web/.next/static
+USER node
+EXPOSE 3000
+CMD ["node", "apps/web/server.js"]

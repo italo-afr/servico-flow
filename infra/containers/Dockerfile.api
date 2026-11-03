@@ -1,0 +1,22 @@
+# Imagem da API e do worker (mesmo artefato, comandos diferentes).
+FROM node:24.22.2-bookworm-slim AS build
+WORKDIR /repo
+RUN corepack enable
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc* ./
+COPY apps/api/package.json apps/api/
+COPY packages/contracts/package.json packages/contracts/
+RUN pnpm install --frozen-lockfile --filter @servicoflow/api...
+COPY tsconfig.base.json ./
+COPY packages/contracts packages/contracts
+COPY apps/api apps/api
+RUN pnpm --filter @servicoflow/contracts build && pnpm --filter @servicoflow/api build \
+ && pnpm --filter @servicoflow/api deploy --prod --legacy /out
+
+FROM node:24.22.2-bookworm-slim
+ENV NODE_ENV=production
+WORKDIR /app
+COPY --from=build /out ./
+COPY database/migrations /database/migrations
+USER node
+EXPOSE 3001
+CMD ["node", "dist/main.js"]

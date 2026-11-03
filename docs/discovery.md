@@ -43,14 +43,17 @@ em vez de opinião genérica ("como costuma ser").
 ### 4.1 Responsável pela operação / atendente (≈30 min)
 
 **Contexto (3 min)**
+
 - Quantas pessoas atendem? Quantos técnicos? Quantos serviços por semana, aproximadamente?
 - Que ferramentas usam hoje (WhatsApp, planilha, caderno, sistema)?
 
 **Pedido (5 min)** — perguntas 1 e 2 do brief
+
 - Conte o último pedido que entrou. Por onde chegou? Quem registrou? Onde?
 - Onde ficam endereço, equipamento, descrição e fotos desse pedido agora?
 
 **Orçamento (7 min)** — perguntas 3 e 4
+
 - Como esse cliente recebeu o orçamento? Em que formato?
 - Como ele aprovou? Ficou registrado onde?
 - Já houve mudança de preço depois do envio? O que aconteceu?
@@ -58,18 +61,22 @@ em vez de opinião genérica ("como costuma ser").
 - O diagnóstico é cobrado? Como?
 
 **Agenda (5 min)** — pergunta 5
+
 - Como escolheram o técnico e o horário?
 - Já aconteceu de marcar dois serviços no mesmo horário para o mesmo técnico?
 
 **Execução (3 min)** — pergunta 6
+
 - Que informação costuma faltar quando o técnico chega?
 
 **Problemas (5 min)** — perguntas 7, 9 e 10
+
 - Conte um erro recente que gerou retrabalho, atraso ou perda de cliente.
 - O que funciona bem no jeito atual e não pode piorar?
 - O que faria vocês experimentarem outra ferramenta? O que faria desistir?
 
 **Fechamento (2 min)**
+
 - Posso acompanhar um atendimento real (sem dados pessoais) ou usar exemplos anonimizados?
 - Topariam testar um fluxo simples daqui a algumas semanas?
 
@@ -93,27 +100,33 @@ Copie uma seção por conversa. Não registre nomes de clientes finais, telefone
 
 ```markdown
 ### Conversa N — AAAA-MM-DD
+
 - Empresa: (identificador anônimo, ex.: "Empresa A — 2 técnicos, região X")
 - Função da pessoa:
 - Formato: presencial / vídeo / telefone; duração:
 - Consentimento para citar: sim/não; gravação: sim/não
 
 **Processo observado (fatos relatados com exemplo concreto)**
+
 - ...
 
 **Problemas relatados (com exemplo)**
+
 | Problema | Exemplo concreto | Frequência relatada | Impacto relatado |
-|---|---|---|---|
+| -------- | ---------------- | ------------------- | ---------------- |
 
 **Interpretação (minha leitura, não fato)**
+
 - ...
 
 **Hipóteses afetadas** (ver seção 6): H1 confirmada / enfraquecida / sem evidência ...
 
 **Limitações desta conversa**
+
 - ...
 
 **Decisões ou mudanças de recorte resultantes**
+
 - ...
 ```
 
@@ -121,16 +134,16 @@ Copie uma seção por conversa. Não registre nomes de clientes finais, telefone
 
 Todas as linhas abaixo são **hipóteses**, derivadas do brief, sem evidência de campo ainda.
 
-| ID | Hipótese | Como validar | Sinal que muda o recorte | Estado |
-|---|---|---|---|---|
-| H1 | Pedidos chegam por WhatsApp/telefone e o contexto (endereço, equipamento, fotos) fica espalhado em conversas | Perguntas 1–2 com exemplo recente | Se já existe um registro central que funciona, reduzir ênfase no cadastro | Não validada |
-| H2 | A aprovação de orçamento é informal e às vezes se perde ou gera disputa de valor | Perguntas 3–4 | Se aprovação é rara como problema, simplificar a fase 4 (sem link público, só registro interno) | Não validada |
-| H3 | Diagnóstico presencial antes do orçamento é comum | Pergunta sobre ida prévia ao local | Se raro, manter visita `DIAGNOSTIC` no modelo mas sem UI dedicada no piloto | Não validada |
-| H4 | Conflitos de agenda de técnicos acontecem | Pergunta 5 | Se nunca acontecem, agenda em lista simples e prioridade menor | Não validada |
-| H5 | Técnicos têm internet suficiente no local para usar web mobile | Pergunta 8 ao técnico | Se não têm, registrar risco; offline continua fora da v1, mas a tela precisa tolerar envio posterior | Não validada |
-| H6 | Clientes finais abririam um link de orçamento por e-mail | Perguntar como o cliente prefere receber | Se clientes só usam WhatsApp, o link precisa ser copiável para envio manual (sem integrar WhatsApp) | Não validada |
-| H7 | A equipe tem 1–3 atendentes e 1–5 técnicos | Pergunta de contexto | Volumes muito maiores mudam prioridades de agenda/dashboard | Não validada |
-| H8 | A empresa aceitaria testar um fluxo concreto | Pergunta de fechamento | Sem aceite, o projeto segue como demonstração técnica com dados sintéticos | Não validada |
+| ID  | Hipótese                                                                                                     | Como validar                             | Sinal que muda o recorte                                                                             | Estado       |
+| --- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------ |
+| H1  | Pedidos chegam por WhatsApp/telefone e o contexto (endereço, equipamento, fotos) fica espalhado em conversas | Perguntas 1–2 com exemplo recente        | Se já existe um registro central que funciona, reduzir ênfase no cadastro                            | Não validada |
+| H2  | A aprovação de orçamento é informal e às vezes se perde ou gera disputa de valor                             | Perguntas 3–4                            | Se aprovação é rara como problema, simplificar a fase 4 (sem link público, só registro interno)      | Não validada |
+| H3  | Diagnóstico presencial antes do orçamento é comum                                                            | Pergunta sobre ida prévia ao local       | Se raro, manter visita `DIAGNOSTIC` no modelo mas sem UI dedicada no piloto                          | Não validada |
+| H4  | Conflitos de agenda de técnicos acontecem                                                                    | Pergunta 5                               | Se nunca acontecem, agenda em lista simples e prioridade menor                                       | Não validada |
+| H5  | Técnicos têm internet suficiente no local para usar web mobile                                               | Pergunta 8 ao técnico                    | Se não têm, registrar risco; offline continua fora da v1, mas a tela precisa tolerar envio posterior | Não validada |
+| H6  | Clientes finais abririam um link de orçamento por e-mail                                                     | Perguntar como o cliente prefere receber | Se clientes só usam WhatsApp, o link precisa ser copiável para envio manual (sem integrar WhatsApp)  | Não validada |
+| H7  | A equipe tem 1–3 atendentes e 1–5 técnicos                                                                   | Pergunta de contexto                     | Volumes muito maiores mudam prioridades de agenda/dashboard                                          | Não validada |
+| H8  | A empresa aceitaria testar um fluxo concreto                                                                 | Pergunta de fechamento                   | Sem aceite, o projeto segue como demonstração técnica com dados sintéticos                           | Não validada |
 
 **Observação sobre H6:** o brief exclui integração com WhatsApp (seção 4.2). Se a
 descoberta mostrar que o e-mail não é usado pelos clientes, a alternativa compatível
@@ -140,18 +153,19 @@ a registrar em ADR antes da fase 4.
 
 ## 7. Linha de base (preencher se houver acesso a uma empresa)
 
-| Métrica (brief 3.5) | Valor atual estimado | Origem | Data |
-|---|---|---|---|
-| Tempo até enviar orçamento | — | — | — |
-| Tempo até decisão do cliente | — | — | — |
-| Ordens sem atualização há X dias | — | — | — |
-| Esforço de cadastro de um pedido | — | — | — |
+| Métrica (brief 3.5)              | Valor atual estimado | Origem | Data |
+| -------------------------------- | -------------------- | ------ | ---- |
+| Tempo até enviar orçamento       | —                    | —      | —    |
+| Tempo até decisão do cliente     | —                    | —      | —    |
+| Ordens sem atualização há X dias | —                    | —      | —    |
+| Esforço de cadastro de um pedido | —                    | —      | —    |
 
 Estimativas relatadas são "relato", não medição; marque-as assim.
 
 ## 8. Registros de conversa
 
 ### Conversas reais
+
 _Nenhuma conversa real registrada._
 
 ### Conversas FICTÍCIAS (simulação — não usar como evidência)
@@ -160,18 +174,20 @@ _Nenhuma conversa real registrada._
 > abaixo é inventado. No estudo de caso, citar como "cenário fictício".
 
 #### Fictícia 1 — 2026-11-03
+
 - Empresa: "Clima Norte Manutenção" (fictícia) — 1 administradora, 1 atendente, 2 técnicos
 - Função: administradora (fictícia)
 - Processo descrito: pedidos chegam por WhatsApp e telefone; orçamento enviado como
   texto na conversa; aprovação é um "pode fazer"; agenda em planilha compartilhada.
 - Problemas descritos:
-  | Problema | Exemplo (fictício) | Frequência | Impacto |
-  |---|---|---|---|
+  | Problema                                                 | Exemplo (fictício)                              | Frequência              | Impacto                                 |
+  | -------------------------------------------------------- | ----------------------------------------------- | ----------------------- | --------------------------------------- |
   | Orçamento aprovado por mensagem, valor contestado depois | Cliente disse ter aprovado sem a recarga de gás | "algumas vezes por mês" | Desconto concedido para evitar conflito |
-  | Pedido esquecido na conversa | Mensagem de sexta só vista na terça | "às vezes" | Cliente contratou outra empresa |
+  | Pedido esquecido na conversa                             | Mensagem de sexta só vista na terça             | "às vezes"              | Cliente contratou outra empresa         |
 - Interpretação: reforçaria H1 e H2 **se fosse real**.
 
 #### Fictícia 2 — 2026-11-03
+
 - Empresa: a mesma (fictícia); função: técnico
 - Processo descrito: recebe endereço por mensagem de manhã; frequentemente vai ao local
   antes de haver preço (diagnóstico); tem 4G na maioria dos locais, mas não em subsolos.
@@ -179,6 +195,7 @@ _Nenhuma conversa real registrada._
 - Interpretação: reforçaria H3 e, parcialmente, H5 **se fosse real**.
 
 ### Efeito das simulações no recorte
+
 Mantém-se o recorte do brief (prioridade: registro + orçamento versionado; agenda simples
 com proteção de sobreposição). As hipóteses H1–H8 continuam **não validadas**.
 

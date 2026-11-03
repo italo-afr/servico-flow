@@ -1,0 +1,229 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #1b1f24;
+  --muted: #5b6470;
+  --border: #d9dde3;
+  --primary: #0b63c5;
+  --primary-text: #ffffff;
+  --danger: #b42318;
+  --success: #067647;
+  --warning: #b54708;
+  --radius: 10px;
+  --focus: 0 0 0 3px rgba(11, 99, 197, 0.35);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1216;
+    --surface: #171b21;
+    --text: #e8ebef;
+    --muted: #9aa4b1;
+    --border: #2b323c;
+    --primary: #5aa3f0;
+    --primary-text: #0b1220;
+    --danger: #f97066;
+    --success: #47cd89;
+    --warning: #fdb022;
+    color-scheme: dark;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font:
+    16px/1.5 system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+a {
+  color: var(--primary);
+}
+main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 16px;
+}
+h1 {
+  font-size: 1.5rem;
+  margin: 8px 0 16px;
+}
+h2 {
+  font-size: 1.15rem;
+  margin: 20px 0 8px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.muted {
+  color: var(--muted);
+}
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.spread {
+  justify-content: space-between;
+}
+.stack > * + * {
+  margin-top: 12px;
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-height: 44px;
+}
+textarea {
+  min-height: 96px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+.field-error {
+  color: var(--danger);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+button,
+.button {
+  font: inherit;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: var(--primary-text);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+button.secondary,
+.button.secondary {
+  background: transparent;
+  color: var(--primary);
+}
+button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.alert {
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid;
+  margin-bottom: 12px;
+}
+.alert.error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.alert.success {
+  border-color: var(--success);
+  color: var(--success);
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.topbar nav {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.topbar a {
+  text-decoration: none;
+  font-weight: 600;
+}
+.demo-banner {
+  background: var(--warning);
+  color: #000;
+  text-align: center;
+  padding: 4px;
+  font-size: 0.875rem;
+}
+.grid2 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none;
+  }
+  table.responsive thead {
+    display: none;
+  }
+  table.responsive tr {
+    display: block;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+  }
+  table.responsive td {
+    display: block;
+    border: 0;
+    padding: 2px 0;
+  }
+}
