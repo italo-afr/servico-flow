@@ -82,7 +82,7 @@ export async function processEvent(
   workerId: string,
 ): Promise<string> {
   const { db, config, mailer } = deps;
-  let secret: Record<string, string> | null = null;
+  let secret: Record<string, string> | null;
   try {
     secret = ev.payload_encrypted
       ? JSON.parse(decrypt(ev.payload_encrypted, config.TOKEN_PAYLOAD_ENCRYPTION_KEY))

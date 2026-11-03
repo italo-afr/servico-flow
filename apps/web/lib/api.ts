@@ -38,7 +38,7 @@ export async function api<T>(
   }
   if (res.status === 204) return undefined as T;
   const text = await res.text();
-  let body: unknown = null;
+  let body: unknown;
   try {
     body = text ? JSON.parse(text) : null;
   } catch {

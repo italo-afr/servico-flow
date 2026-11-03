@@ -14,7 +14,8 @@
     "test:unit": "vitest run --dir src",
     "test:integration": "vitest run --dir test --no-file-parallelism",
     "db:migrate": "tsx --env-file-if-exists=../../.env src/db/migrate-cli.ts",
-    "db:seed": "tsx --env-file-if-exists=../../.env src/db/seed-cli.ts"
+    "db:seed": "tsx --env-file-if-exists=../../.env src/db/seed-cli.ts",
+    "org:create": "tsx --env-file-if-exists=../../.env src/organizations/create-org-cli.ts"
   },
   "dependencies": {
     "@nestjs/common": "12.3.2",
