@@ -9,3 +9,6 @@ coverage/
 .local-mail/
 *.tsbuildinfo
 .local-storage/
+.e2e-storage/
+test-results/
+playwright-report/
