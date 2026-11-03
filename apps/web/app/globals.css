@@ -227,3 +227,43 @@ td {
     padding: 2px 0;
   }
 }
+.status-OPEN,
+.status-TRIAGE {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+.status-AWAITING_APPROVAL {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.status-APPROVED,
+.status-SCHEDULED,
+.status-IN_PROGRESS {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+.status-COMPLETED {
+  border-color: var(--success);
+  color: var(--success);
+}
+.status-CANCELLED {
+  color: var(--muted);
+}
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.timeline li {
+  border-left: 2px solid var(--border);
+  padding: 0 0 12px 12px;
+}
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filters > * {
+  flex: 1 1 160px;
+}

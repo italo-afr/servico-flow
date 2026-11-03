@@ -40,6 +40,35 @@ export class RequestIdMiddleware implements NestMiddleware {
   }
 }
 
+const PG_ERRORS: Record<string, { status: number; code: string; message: string }> = {
+  '40001': {
+    status: 409,
+    code: 'CONCURRENT_UPDATE',
+    message: 'Conflito de concorrência; tente novamente.',
+  },
+  '40P01': {
+    status: 409,
+    code: 'CONCURRENT_UPDATE',
+    message: 'Conflito de concorrência; tente novamente.',
+  },
+  '23503': {
+    status: 422,
+    code: 'INVALID_REFERENCE',
+    message: 'Referência inválida para esta empresa.',
+  },
+  '23505': { status: 409, code: 'DUPLICATE', message: 'Registro duplicado.' },
+  '23514': {
+    status: 422,
+    code: 'VALIDATION_FAILED',
+    message: 'Dados fora dos limites permitidos.',
+  },
+  '23P01': {
+    status: 409,
+    code: 'SCHEDULE_CONFLICT',
+    message: 'O técnico já tem uma visita neste horário.',
+  },
+};
+
 /** Converte qualquer erro no formato {code, message, requestId, fields}. Sem stack/SQL na resposta. */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -69,12 +98,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return;
     }
     const pgCode = (exception as { code?: string })?.code;
-    if (pgCode === '40001' || pgCode === '40P01') {
-      res.status(409).json({
-        code: 'CONCURRENT_UPDATE',
-        message: 'Conflito de concorrência; tente novamente.',
+    const mapped = pgCode ? PG_ERRORS[pgCode] : undefined;
+    if (mapped) {
+      // Constraint do banco atuou como última defesa: registra para investigação.
+      log('warn', 'db_constraint', {
         requestId,
+        pgCode,
+        constraint: (exception as { constraint?: string }).constraint,
       });
+      res.status(mapped.status).json({ code: mapped.code, message: mapped.message, requestId });
       return;
     }
     log('error', 'unhandled_error', {
