@@ -14,30 +14,32 @@ de épico e serão detalhadas quando entrarem em `Pronto`.
 | ID    | Título                                                          | Fase | Marco | Estado                                                           | Depende de    |
 | ----- | --------------------------------------------------------------- | ---- | ----- | ---------------------------------------------------------------- | ------------- |
 | D-01  | Conduzir entrevistas de descoberta                              | 0    | A     | Substituída por simulação fictícia (sem acesso a usuários reais) | —             |
-| F-01  | Esqueleto andante: web → `/api/v1/health/ready` → PostgreSQL    | 1    | A     | **Pronto**                                                       | —             |
-| F-02  | CI inicial (lockfile, lint, tipos, testes, build)               | 1    | A     | Pronto                                                           | F-01          |
-| F-03  | ADRs iniciais e documentação de setup                           | 1    | A     | Pronto                                                           | F-01          |
-| ID-01 | Login/logout com sessão revogável                               | 2    | A     | Backlog                                                          | F-01, ADR-002 |
-| ID-02 | Empresa, associação e primeiro administrador (fluxo controlado) | 2    | A     | Backlog                                                          | ID-01         |
-| ID-03 | Convite com expiração e uso único                               | 2    | A     | Backlog                                                          | ID-02         |
-| ID-04 | Contexto de empresa + matriz de autorização no servidor         | 2    | A     | Backlog                                                          | ID-02         |
-| ID-05 | Recuperação de acesso                                           | 2    | A     | Backlog                                                          | ID-01         |
-| OS-01 | Cliente, endereço e equipamento por empresa                     | 3    | A     | Backlog                                                          | ID-04         |
-| OS-02 | Abrir ordem com número sequencial seguro                        | 3    | A     | Backlog                                                          | OS-01         |
-| OS-03 | Listar, buscar e detalhar ordens                                | 3    | A     | Backlog                                                          | OS-02         |
-| OS-04 | Comando de triagem, linha do tempo e auditoria                  | 3    | A     | Backlog                                                          | OS-02         |
-| OS-05 | Cancelar ordem com motivo                                       | 3    | A     | Backlog                                                          | OS-04         |
-| QT-*  | Orçamentos, versões, link e decisão                             | 4    | A     | Backlog                                                          | OS-04         |
-| SC-*  | Agenda, diagnóstico, não sobreposição                           | 5    | A     | Backlog                                                          | OS-04, QT-*   |
-| EX-*  | Área do técnico, execução e fotos privadas                      | 6    | A     | Backlog                                                          | SC-*          |
-| NT-*  | Outbox, worker, e-mail e jobs                                   | 7    | B     | Backlog                                                          | QT-*          |
-| DB-*  | Dashboard de pendências e sessão de uso                         | 8    | A     | Backlog                                                          | EX-*          |
-| OP-*  | Segurança, desempenho, backup, runbooks                         | 9    | B     | Backlog                                                          | todas         |
+| F-01  | Esqueleto andante: web → `/api/v1/health/ready` → PostgreSQL    | 1    | A     | Concluído (local)                                                | —             |
+| F-02  | CI inicial (lockfile, lint, tipos, testes, build)               | 1    | A     | Concluído (execução no GitHub não observada)                     | F-01          |
+| F-03  | ADRs iniciais e documentação de setup                           | 1    | A     | Concluído                                                        | F-01          |
+| ID-01 | Login/logout com sessão revogável                               | 2    | A     | Concluído (local)                                                | F-01, ADR-002 |
+| ID-02 | Empresa, associação e primeiro administrador (fluxo controlado) | 2    | A     | Concluído (local)                                                | ID-01         |
+| ID-03 | Convite com expiração e uso único                               | 2    | A     | Concluído (local)                                                | ID-02         |
+| ID-04 | Contexto de empresa + matriz de autorização no servidor         | 2    | A     | Concluído (local)                                                | ID-02         |
+| ID-05 | Recuperação de acesso                                           | 2    | A     | Concluído (local)                                                | ID-01         |
+| OS-01 | Cliente, endereço e equipamento por empresa                     | 3    | A     | Concluído (local)                                                | ID-04         |
+| OS-02 | Abrir ordem com número sequencial seguro                        | 3    | A     | Concluído (local)                                                | OS-01         |
+| OS-03 | Listar, buscar e detalhar ordens                                | 3    | A     | Concluído (local)                                                | OS-02         |
+| OS-04 | Comando de triagem, linha do tempo e auditoria                  | 3    | A     | Concluído (local)                                                | OS-02         |
+| OS-05 | Cancelar ordem com motivo                                       | 3    | A     | Concluído (local)                                                | OS-04         |
+| QT-*  | Orçamentos, versões, link e decisão                             | 4    | A     | Concluído (local)                                                | OS-04         |
+| SC-*  | Agenda, diagnóstico, não sobreposição                           | 5    | A     | Concluído (local)                                                | OS-04, QT-*   |
+| EX-*  | Área do técnico, execução e fotos privadas                      | 6    | A     | Concluído (local)                                                | SC-*          |
+| NT-*  | Outbox, worker, e-mail e jobs                                   | 7    | B     | Concluído (local)                                                | QT-*          |
+| DB-*  | Dashboard de pendências e sessão de uso                         | 8    | A     | Concluído (local); sessão de uso real pendente                   | EX-*          |
+| OP-*  | Segurança, desempenho, backup, runbooks                         | 9    | B     | Parcial: verificações locais; métricas/alertas pendentes         | todas         |
 | DP-*  | Staging e produção                                              | 10   | B     | Backlog (requer orçamento/contas)                                | OP-*          |
 | PL-*  | Piloto acompanhado                                              | 11   | B     | Backlog (requer empresa)                                         | DP-*          |
 | AI-*  | Triagem assistida com avaliação                                 | 12   | C     | Backlog (opcional)                                               | PL-*          |
 
-**Primeira fatia a executar: F-01.** Primeira fatia _comercial_: OS-01→OS-02
+**Estado em 2026-11-03:** fases 1–8 concluídas localmente (ver `docs/progress.md`). Próximas: DP-01 (staging) e OP-01 (métricas).
+
+~~Primeira fatia a executar: F-01.~~ Primeira fatia _comercial_: OS-01→OS-02
 (depende da base de identidade da fase 2, por decisão do brief: segurança antes de dados comerciais).
 
 ---
@@ -145,3 +147,12 @@ de épico e serão detalhadas quando entrarem em `Pronto`.
 - **DP (fase 10):** imagens por commit, staging, produção — **requer orçamento, contas e domínio autorizados**.
 - **PL (fase 11):** onboarding e observação — **requer empresa parceira**.
 - **AI (fase 12):** baseline por regras primeiro; dataset 50/30; gate do brief 12.5.
+
+## Novas tarefas (2026-11-03)
+
+- **DP-01 — Validar deploy em staging.** Construir as imagens, subir `infra/deploy/docker-compose.prod.yml` com banco/storage/e-mail de teste, rodar migration como tarefa única e smoke test. _Bloqueado: provedor e autorização de custo._
+- **OP-01 — Métricas e traces.** OpenTelemetry na API/worker; alertas de erro, fila (pendente > 5 min), heartbeat e disco.
+- **OP-02 — Otimizar detalhe da ordem.** Consultas dos extras em paralelo ou em uma só; medir antes/depois.
+- **OP-03 — Quota de storage por empresa (bytes).**
+- **OP-04 — Limite de taxa público compartilhado** (banco) antes de rodar mais de uma instância da API.
+- **SEC-01 — Avaliar RLS** como segunda barreira multiempresa.

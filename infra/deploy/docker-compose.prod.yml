@@ -1,0 +1,75 @@
+# Produção/staging numa VPS (brief 11.1). NÃO VERIFICADO neste ambiente (sem Docker):
+# validar em staging antes de qualquer uso real. PostgreSQL e storage são GERENCIADOS (externos).
+#
+# Uso:
+#   export IMAGE_TAG=<sha-do-commit> APP_DOMAIN=app.exemplo.com.br
+#   docker compose -f docker-compose.prod.yml --env-file /etc/servicoflow/app.env run --rm migrate
+#   docker compose -f docker-compose.prod.yml --env-file /etc/servicoflow/app.env up -d
+name: servicoflow
+x-app: &app
+  image: ghcr.io/italo-afr/servicoflow-api:${IMAGE_TAG:?defina IMAGE_TAG}
+  env_file: /etc/servicoflow/app.env # segredos fora do repositório
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: ['no-new-privileges:true']
+  logging:
+    driver: json-file
+    options: { max-size: '10m', max-file: '5' }
+
+services:
+  proxy:
+    image: caddy:2.10
+    ports: ['80:80', '443:443', '443:443/udp']
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?defina APP_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # certificados persistem entre recriações
+      - caddy_config:/config
+    restart: unless-stopped
+    depends_on: [web, api]
+
+  web:
+    image: ghcr.io/italo-afr/servicoflow-web:${IMAGE_TAG:?defina IMAGE_TAG}
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp, /app/apps/web/.next/cache]
+    environment: { NODE_ENV: production }
+    deploy: { resources: { limits: { memory: 512m } } }
+
+  api:
+    <<: *app
+    expose: ['3001'] # sem porta pública: só o proxy acessa
+    environment: { RELEASE_SHA: '${IMAGE_TAG}', DATABASE_POOL_MAX: '10' }
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3001/api/v1/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    stop_grace_period: 20s
+    deploy: { resources: { limits: { memory: 512m } } }
+
+  worker:
+    <<: *app
+    command: ['node', 'dist/worker/main.js']
+    environment: { RELEASE_SHA: '${IMAGE_TAG}' }
+    stop_grace_period: 30s
+    deploy: { resources: { limits: { memory: 256m } } }
+
+  # Tarefa única por release (brief 11.5): nunca roda automaticamente em cada réplica.
+  migrate:
+    <<: *app
+    command: ['node', 'dist/db/migrate-cli.js']
+    restart: 'no'
+    profiles: [ops]
+
+volumes:
+  caddy_data:
+  caddy_config:

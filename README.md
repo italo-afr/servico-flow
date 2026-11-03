@@ -3,77 +3,109 @@
 Sistema web para pequenas empresas de manutenção de ar-condicionado acompanharem
 **pedido → orçamento → visita → execução** em um só lugar.
 
-- O **atendente** registra o pedido e sabe o que está aguardando ação.
-- O **cliente** abre um link privado, vê uma versão específica do orçamento e aceita ou recusa.
-- O **técnico** vê as visitas do dia no celular e registra o que fez, com fotos.
+- O **atendente** registra o pedido, monta o orçamento e agenda visitas sem conflito de horário.
+- O **cliente** abre um link privado, vê uma versão específica do orçamento e aceita ou recusa, sem criar conta.
+- O **técnico** vê as visitas no celular, registra o que fez e envia fotos.
 
-> **Estado atual (2026-11-03): fase 0 concluída — ainda não há código.**
-> Projeto de **demonstração técnica**. Não há empresa parceira: entrevistas, empresa,
-> clientes, orçamento e horas de planejamento são **fictícios** e identificados como tal.
-> Nenhum resultado de uso, desempenho ou disponibilidade foi medido.
+> **Estado atual (2026-11-03): demonstração técnica, verificada localmente.**
+> A jornada completa funciona com persistência real (PostgreSQL) e está coberta por testes.
+> **Nada foi publicado** (não há staging, demo nem produção). Não há empresa parceira:
+> entrevistas, empresas, clientes e orçamento de infraestrutura são **fictícios**.
 
-## Problema (hipótese)
+## Problema (hipótese, não validada)
 
 Pequenas empresas de manutenção podem perder pedidos, aprovações e histórico ao coordenar
-serviços por WhatsApp, telefone e planilhas. Isso **não foi validado** com usuários reais —
-ver [`docs/discovery.md`](docs/discovery.md).
+serviços por WhatsApp, telefone e planilhas. Ver [`docs/discovery.md`](docs/discovery.md).
 
 ## Jornada principal
 
 ```text
-Atendente cadastra cliente/local/equipamento
-  → abre ordem (OPEN) → triagem (TRIAGE)
-      ↳ visita de diagnóstico opcional
-  → envia versão do orçamento (AWAITING_APPROVAL)
-  → cliente aceita pelo link (APPROVED)  |  recusa/expira → volta à triagem
-  → agenda execução sem conflito de técnico (SCHEDULED)
-  → técnico inicia (IN_PROGRESS) e conclui com resumo e fotos (COMPLETED)
+Atendente cadastra cliente/local/equipamento → abre ordem (OPEN) → triagem (TRIAGE)
+   ↳ visita de diagnóstico opcional (técnico registra achados)
+→ envia versão do orçamento (AWAITING_APPROVAL) → e-mail com link privado
+→ cliente aceita (APPROVED)        | recusa ou expira → volta à triagem
+→ agenda execução sem conflito (SCHEDULED)
+→ técnico inicia no celular (IN_PROGRESS) → resumo + fotos → COMPLETED
 ```
 
-Exemplo completo com dados fictícios: [`docs/product.md` §5](docs/product.md).
+## Decisões de engenharia (todas implementadas e testadas localmente)
 
-## Decisões de engenharia que o projeto pretende demonstrar
+| Problema                                      | Como foi resolvido                                                                         | Evidência        |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------- |
+| Dados de uma empresa vazando para outra       | Associação ativa checada a cada requisição; FKs compostas `(organization_id, id)` no banco | T01, T02         |
+| Orçamento alterado depois de enviado          | Snapshot imutável + triggers no banco; mudança gera nova versão e revoga o link            | `quotes.test.ts` |
+| Clique duplo / duas abas decidindo            | `SELECT … FOR UPDATE`; repetição devolve o recibo sem novos efeitos                        | T06, T07, T08    |
+| Duas visitas sobrepostas para o mesmo técnico | `EXCLUDE USING gist` sobre `tstzrange [início, fim)`, válido entre empresas                | T10–T12          |
+| E-mail fora do ar na hora da aprovação        | Outbox na mesma transação; worker com `SKIP LOCKED`, lease, backoff                        | T14, T15         |
+| Link de orçamento vazando                     | Token de 256 bits no fragmento `#`, só hash no banco, trocado por cookie curto             | T09              |
+| Foto maliciosa ou com GPS                     | Validação pelo conteúdo, reprocessamento WebP sem EXIF, URLs de 5 min                      | T17, T18         |
 
-| Problema                                           | Abordagem planejada                                                                               |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Dados de uma empresa vazando para outra            | Autorização no servidor a cada requisição + chaves estrangeiras compostas `(organization_id, id)` |
-| Orçamento alterado depois de aceito                | Versão enviada é imutável (snapshot); mudança gera nova versão e revoga o link anterior           |
-| Clique duplo / duas abas aprovando                 | Decisão idempotente em transação; repetição devolve o resultado já registrado                     |
-| Dois agendamentos sobrepostos para o mesmo técnico | Constraint de exclusão do PostgreSQL sobre intervalos `[início, fim)`                             |
-| E-mail fora do ar no momento da aprovação          | Outbox na mesma transação + worker com lease e retentativas                                       |
-| Link de orçamento vazando                          | Token ≥256 bits, só o hash no banco, GET nunca decide                                             |
+O teste T08 (revisão concorrente com aceite) encontrou um bug real numa constraint, corrigido
+por uma nova migration (`0005`).
 
-Nada da tabela acima está implementado ainda.
+## Números medidos (local, dados sintéticos)
 
-## Stack proposta
+- **72** testes de integração contra PostgreSQL real, **21** unitários, **1** E2E da jornada no celular.
+- Carga de 120 s com 20 usuários virtuais e 10 mil ordens: **p95 57,6 ms, 0 erros, ~587 req/s**
+  (um contêiner de 4 vCPU; não extrapolar).
+- Backup e restauração ensaiados: dados e totais idênticos, API sobe no banco restaurado.
 
-TypeScript · Next.js (web) · NestJS (API e worker) · PostgreSQL · Prisma · pnpm workspaces ·
-Docker Compose · GitHub Actions. Versões serão fixadas na fase 1 após consulta à documentação oficial.
+Detalhes: [`docs/evidence/2026-11-03-local.md`](docs/evidence/2026-11-03-local.md).
 
-## Roadmap
+## Arquitetura
 
-| Fase  | Entrega                                        | Estado                             |
-| ----- | ---------------------------------------------- | ---------------------------------- |
-| 0     | Descoberta, recorte e backlog                  | ✅ Concluída (com dados fictícios) |
-| 1     | Esqueleto: web → API → PostgreSQL, Compose, CI | ⏭️ Próxima                         |
-| 2     | Login, empresas, convites, permissões          | —                                  |
-| 3     | Clientes, equipamentos e ordens                | —                                  |
-| 4     | Orçamentos versionados e decisão do cliente    | —                                  |
-| 5     | Agenda com prevenção de conflitos              | —                                  |
-| 6     | Área do técnico e fotos privadas               | —                                  |
-| 7     | Notificações confiáveis (outbox)               | —                                  |
-| 8–9   | Dashboard, segurança, desempenho, backup       | —                                  |
-| 10    | Staging e produção                             | —                                  |
-| 11–12 | Uso acompanhado e IA opcional avaliada         | —                                  |
+Monólito modular: Next.js (web) + NestJS (API e worker do mesmo código) + PostgreSQL + storage S3 privado.
+Web e API na mesma origem atrás do Caddy. Ver [`docs/architecture.md`](docs/architecture.md).
 
-## Documentação
+**Stack fixada:** Node 24.22.2 · pnpm 10.28 · TypeScript 5.9 · Next.js 16.4 · NestJS 12.3 · better-auth 1.7 ·
+PostgreSQL 16 · `pg` + SQL (sem ORM) · zod 4 · sharp · Vitest 5 · Playwright 1.63.
 
-- [`docs/project-brief.md`](docs/project-brief.md) — especificação completa (regras, arquitetura, fases, critérios)
-- [`docs/product.md`](docs/product.md) — hipótese de valor, personas, fluxos e recorte do piloto
-- [`docs/discovery.md`](docs/discovery.md) — roteiro de entrevistas e simulações fictícias
-- [`docs/backlog.md`](docs/backlog.md) — tarefas com critérios de aceite e riscos
-- [`docs/progress.md`](docs/progress.md) — estado real e próximos passos
+## Como rodar
 
-## Como executar
+Passo a passo em [`docs/setup.md`](docs/setup.md). Resumo:
 
-Ainda não há código. As instruções de setup serão adicionadas na fase 1 (`docs/setup.md`).
+```bash
+pnpm install --frozen-lockfile
+```
+
+```bash
+cp .env.example .env
+```
+
+```bash
+pnpm db:migrate && pnpm db:seed && pnpm dev
+```
+
+Acesse http://localhost:3000 com `beto@clima-norte.example.com` / `demo-senha-123` (conta fictícia).
+
+## Verificações
+
+```bash
+pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm test:e2e && pnpm build
+```
+
+## Segurança, operação e limites
+
+- [`docs/security.md`](docs/security.md): modelo de ameaças, matriz de papéis e dados pessoais.
+- [`docs/runbooks.md`](docs/runbooks.md): 10 procedimentos de incidente.
+- [`docs/adr/`](docs/adr/): 8 decisões registradas.
+
+**Limites conhecidos:**
+
+- Os artefatos de deploy (`infra/`) **nunca foram executados**.
+- Faltam métricas, traces e alertas.
+- Um e-mail pode ser duplicado se o processo cair logo após o provedor aceitar o envio.
+- O limite de taxa das rotas públicas vale para uma instância só.
+- O aceite é um registro operacional, não pagamento nem assinatura jurídica.
+
+## Documentação de produto
+
+[`docs/project-brief.md`](docs/project-brief.md) (especificação) · [`docs/product.md`](docs/product.md) ·
+[`docs/backlog.md`](docs/backlog.md) · [`docs/progress.md`](docs/progress.md) · [`docs/costs.md`](docs/costs.md)
+
+## Próximos passos
+
+1. Validar o deploy em staging. Isso depende de escolher o provedor e o orçamento.
+2. Adicionar métricas e alertas.
+3. Fazer uso acompanhado com uma empresa real, se houver uma disponível.
+4. Avaliar a triagem com IA comparando com um baseline por regras (opcional).

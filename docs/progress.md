@@ -2,63 +2,54 @@
 
 ## Marco e fase atuais
 
-Marco A (piloto funcional) — **fase 0 concluída como hipótese documentada**; próxima: fase 1 (F-01).
+Marco A (piloto funcional) **implementado e verificado localmente, com dados fictícios**.
+Fases 1–8 entregues; fase 9 parcialmente (verificações locais). Fases 10–11 bloqueadas por decisões externas.
+Fase 12 (IA) não iniciada.
 
 ## Última entrega concluída
 
-2026-11-03 — Fase 0: repositório criado, brief salvo, materiais de descoberta, recorte de produto e backlog.
-
-- `docs/project-brief.md` — especificação normativa.
-- `docs/discovery.md` — roteiro, consentimento, modelo de registro, hipóteses H1–H8 e 2 entrevistas **fictícias** (decisão do responsável; não são evidência).
-- `docs/product.md` — hipótese de valor, personas, fluxo atual (hipotético) × proposto, exemplo ponta a ponta sintético, conjunto do piloto, pendências.
-- `docs/backlog.md` — tarefas verticais com aceite e riscos; F-01 pronta.
+2026-11-03 — jornada completa: convite → cliente/local/equipamento → ordem → triagem → orçamento versionado →
+link do cliente → aceite → agenda (diagnóstico/execução) → execução no celular com fotos → conclusão;
+painel, operação da fila, carga e ensaio de backup. Ver `docs/evidence/2026-11-03-local.md`.
 
 ## Estado real por ambiente
 
-- Local: apenas documentação; nenhum código.
+- Local: tudo funcionando (PostgreSQL 16 local, e-mails em `.local-mail/`, storage em disco local).
 - Staging: não existe.
 - Demo: não existe.
-- Produção: não existe.
+- Produção: não existe. Nada publicado.
 
 ## Verificações executadas
 
-- Inspeção do ambiente de desenvolvimento (container de nuvem, 2026-11-03):
-  Node v22.23.4, pnpm 10.28.0, Docker 29.9.2, cliente psql 16.15, git 2.43.0.
-  Isso descreve a máquina de desenvolvimento atual, **não** uma escolha de versão para o projeto.
-- Não há código, logo não há testes.
+lint, typecheck, 21 unitários, 72 de integração, 1 E2E, build, `pnpm audit`, carga de 120 s, backup/restore.
+CI configurado (`.github/workflows/ci.yml`), mas **ainda não houve execução observada no GitHub**.
 
 ## Decisões novas e ADRs
 
-Decisões de stack **propostas** (brief §2/§6), a confirmar com documentação oficial em F-01:
-
-| Área                             | Proposta                                                                            | A verificar em F-01                                                    |
-| -------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Runtime                          | Node.js LTS                                                                         | Linha LTS ativa em nov/2026 e compatibilidade de Next.js/NestJS/Prisma |
-| Pacotes                          | pnpm workspaces                                                                     | Versão a fixar em `packageManager`                                     |
-| Web                              | Next.js (App Router)                                                                | Versão estável atual; modo `standalone` para self-hosting              |
-| API + worker                     | NestJS, mesmo código, dois entrypoints                                              | Versão estável atual                                                   |
-| Banco                            | PostgreSQL                                                                          | Versão suportada pelo provedor gerenciado; extensão `btree_gist`       |
-| ORM                              | Prisma + migrations SQL manuais para constraints de exclusão, FKs compostas e locks | Suporte a SQL bruto em migrations e `$transaction` interativa          |
-| Testes                           | Runner (Vitest ou Jest), Supertest, Playwright                                      | Compatibilidade com NestJS/decorators                                  |
-| Auth                             | **Em aberto** (ADR-002)                                                             | Biblioteca mantida com sessão revogável em cookie                      |
-| Nenhum ADR escrito ainda (F-03). |
+`docs/adr/0001`–`0008`. Desvios do brief: sem Prisma (pg + SQL; ver `architecture.md`); RLS não adotado;
+entrevistas e orçamento fictícios por decisão do responsável.
 
 ## Riscos e pendências
 
-- Recorte não validado (H1–H8). Prioridade entre aprovação (H2) e agenda (H4) pode mudar.
-- H6: se clientes não usam e-mail, o link privado precisaria ser copiável pelo atendente — exige ADR antes da fase 4.
-- Prisma não modela constraints de exclusão nativamente — validar migration SQL manual em F-01.
-- Sem dados reais: entrevistas, orçamento (R$ 150/mês) e horas (15 h/semana) são fictícios. O estudo de caso deve dizer isso.
+- Compose de produção, Dockerfiles e Caddyfile nunca executados (sem Docker no ambiente de construção).
+- Sem métricas/traces/alertas exportados (só logs estruturados e painel da fila).
+- T16 (duplicação de e-mail após aceite do provedor) só documentado; T26 não executado.
+- Limite de taxa das rotas públicas em memória (válido para uma instância de API).
+- Quota de storage por empresa não implementada.
+- H6 (clientes sem e-mail) sem alternativa na v1.
 
-## Bloqueios externos
+## Bloqueios externos (precisam do responsável)
 
-- Entrevistas reais (D-01): não há acesso a empresas; substituídas por simulação fictícia.
-- Remoto: `github.com/italo-afr/servi-o-flow` (configurado em 2026-11-03).
+- Provedores e orçamento real (VPS, PostgreSQL gerenciado, storage S3, e-mail transacional), domínio e DNS.
+- Autorização para criar contas/gastar e para publicar imagens no GHCR.
+- Empresa parceira para piloto (hoje não há; uso real seria a fase 11).
 
 ## Próxima tarefa pronta
 
-**F-01 — Esqueleto andante** (`docs/backlog.md`): web → `/api/v1/health/ready` → PostgreSQL, com Compose, configuração validada, primeira migration e seed protegido.
+DP-01: validar `infra/deploy/docker-compose.prod.yml` e as imagens num ambiente com Docker (staging),
+depois smoke test — exige decidir o provedor.
+Sem depender disso: OP-01 (métricas OpenTelemetry), otimizar detalhe da ordem, quota por empresa.
 
 ## Como reproduzir a última entrega
 
-Somente documentos: `ls docs/` e leitura dos arquivos acima.
+`docs/setup.md` → `pnpm db:migrate && pnpm db:seed && pnpm dev` → entrar como `beto@clima-norte.example.com` / `demo-senha-123`.
