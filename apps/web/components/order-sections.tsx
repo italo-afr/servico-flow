@@ -1,4 +1,6 @@
 'use client';
+import { AppointmentsSection } from './appointments-section';
+import { PhotosSection } from './photos-section';
 import { QuoteSection } from './quote-section';
 
 export interface OrderDetail {
@@ -41,5 +43,11 @@ export interface OrderDetail {
 
 /** Seções do detalhe da ordem: orçamento (quem pode ver valores), visitas e fotos. */
 export function OrderSections({ order, reload }: { order: OrderDetail; reload: () => void }) {
-  return <>{order.quotes !== undefined && <QuoteSection order={order} reload={reload} />}</>;
+  return (
+    <>
+      {order.quotes !== undefined && <QuoteSection order={order} reload={reload} />}
+      <AppointmentsSection order={order} reload={reload} />
+      <PhotosSection order={order} reload={reload} />
+    </>
+  );
 }

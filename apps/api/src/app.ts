@@ -11,12 +11,14 @@ import { AccessGuard } from './identity/access.guard.js';
 import { createAuth, type Auth } from './identity/auth.js';
 import { InvitationsController } from './organizations/invitations.js';
 import { MembersController } from './organizations/members.js';
-import { AUTH, CONFIG, DB } from './tokens.js';
+import { AUTH, CONFIG, DB, STORAGE } from './tokens.js';
 import { FEATURE_CONTROLLERS } from './features.js';
+import { createStorage, type ObjectStorage } from './attachments/storage.js';
+import expressLib from 'express';
 
 @Module({})
 class AppModule implements NestModule {
-  static register(config: AppConfig, db: Db, auth: Auth): DynamicModule {
+  static register(config: AppConfig, db: Db, auth: Auth, storage: ObjectStorage): DynamicModule {
     return {
       module: AppModule,
       global: true,
@@ -30,9 +32,10 @@ class AppModule implements NestModule {
         { provide: CONFIG, useValue: config },
         { provide: DB, useValue: db },
         { provide: AUTH, useValue: auth },
+        { provide: STORAGE, useValue: storage },
         { provide: APP_GUARD, useClass: AccessGuard },
       ],
-      exports: [CONFIG, DB, AUTH],
+      exports: [CONFIG, DB, AUTH, STORAGE],
     };
   }
   configure(consumer: MiddlewareConsumer) {
@@ -42,10 +45,14 @@ class AppModule implements NestModule {
 
 export const API_PREFIX = 'api/v1';
 
-export async function createApp(config: AppConfig, db: Db): Promise<NestExpressApplication> {
+export async function createApp(
+  config: AppConfig,
+  db: Db,
+  storage: ObjectStorage = createStorage(config),
+): Promise<NestExpressApplication> {
   const auth = createAuth(config, db);
   const app = await NestFactory.create<NestExpressApplication>(
-    AppModule.register(config, db, auth),
+    AppModule.register(config, db, auth, storage),
     {
       logger: config.APP_ENV === 'test' ? false : ['error', 'warn'],
       bodyParser: false,
@@ -62,6 +69,8 @@ export async function createApp(config: AppConfig, db: Db): Promise<NestExpressA
   });
   // better-auth precisa do corpo bruto: montado ANTES do body parser.
   express.all('/api/auth/*splat', toNodeHandler(auth));
+  // Upload do adaptador local de storage (só dev/testes): corpo binário limitado.
+  express.use('/api/v1/storage-local/put', expressLib.raw({ type: () => true, limit: '6mb' }));
   app.useBodyParser('json', { limit: '100kb' });
   app.setGlobalPrefix(API_PREFIX);
   app.useGlobalFilters(new AllExceptionsFilter());

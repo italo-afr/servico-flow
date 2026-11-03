@@ -5,6 +5,7 @@ import { createPool } from '../db/pool.js';
 import { createMailer } from '../notifications/mailer.js';
 import { processOnce } from '../notifications/processor.js';
 import { runMaintenance } from './maintenance.js';
+import { createStorage } from '../attachments/storage.js';
 
 let config;
 try {
@@ -19,6 +20,7 @@ try {
 const db = createPool(config.DATABASE_URL, 3);
 db.on('error', (err) => log('error', 'db_pool_error', { error: err.message }));
 const mailer = createMailer(config);
+const storage = createStorage(config);
 const workerId = `${hostname()}-${process.pid}`;
 let stopping = false;
 for (const s of ['SIGTERM', 'SIGINT'] as const) process.once(s, () => (stopping = true));
@@ -35,7 +37,7 @@ while (!stopping) {
     const results = await processOnce({ db, config, mailer, workerId });
     if (results.length) log('info', 'outbox_batch', { workerId, results });
     if (Date.now() - lastMaintenance > 60_000) {
-      await runMaintenance(db);
+      await runMaintenance(db, storage);
       lastMaintenance = Date.now();
     }
     if (results.length === 0) await new Promise((r) => setTimeout(r, 2000));

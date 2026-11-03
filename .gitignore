@@ -8,3 +8,4 @@ coverage/
 *.log
 .local-mail/
 *.tsbuildinfo
+.local-storage/

@@ -19,6 +19,13 @@ const schema = z.object({
   SMTP_URL: z.string().optional(),
   EMAIL_ALLOWED_RECIPIENTS: z.string().optional(),
   RELEASE_SHA: z.string().default('dev'),
+  STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
+  STORAGE_LOCAL_DIR: z.string().default('.local-storage'),
+  STORAGE_ENDPOINT: z.string().optional(),
+  STORAGE_REGION: z.string().default('us-east-1'),
+  STORAGE_BUCKET: z.string().optional(),
+  STORAGE_ACCESS_KEY_ID: z.string().optional(),
+  STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
   AUTH_RATE_LIMIT: z
     .enum(['true', 'false'])
     .default('true')
@@ -41,5 +48,19 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       `Configuração inválida ou ausente:\n${lines.join('\n')}\nVeja .env.example e docs/setup.md.`,
     );
   }
-  return parsed.data;
+  const c = parsed.data;
+  if (c.APP_ENV === 'production' && c.STORAGE_DRIVER !== 's3') {
+    throw new ConfigError(
+      'Configuração inválida: STORAGE_DRIVER=s3 é obrigatório em produção (disco do container é efêmero).',
+    );
+  }
+  if (
+    c.STORAGE_DRIVER === 's3' &&
+    (!c.STORAGE_BUCKET || !c.STORAGE_ACCESS_KEY_ID || !c.STORAGE_SECRET_ACCESS_KEY)
+  ) {
+    throw new ConfigError(
+      'Configuração inválida: STORAGE_BUCKET, STORAGE_ACCESS_KEY_ID e STORAGE_SECRET_ACCESS_KEY são obrigatórias com STORAGE_DRIVER=s3.',
+    );
+  }
+  return c;
 }
