@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  Inject,
   Catch,
   ExceptionFilter,
   HttpException,
@@ -12,6 +13,8 @@ import type { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
 import { AppError, invalid } from './errors.js';
 import { log } from './logger.js';
+import type { Metrics } from '../observability/metrics.js';
+import { METRICS } from '../tokens.js';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -21,12 +24,21 @@ declare module 'express-serve-static-core' {
 
 @Injectable()
 export class RequestIdMiddleware implements NestMiddleware {
+  constructor(@Inject(METRICS) private readonly metrics: Metrics) {}
   use(req: Request, res: Response, next: NextFunction) {
     const incoming = req.header('x-request-id');
     req.requestId = incoming && /^[\w-]{8,64}$/.test(incoming) ? incoming : randomUUID();
     res.setHeader('x-request-id', req.requestId);
     const start = process.hrtime.bigint();
     res.on('finish', () => {
+      const route = (req.route as { path?: string } | undefined)?.path ?? 'unmatched';
+      const seconds = Number(process.hrtime.bigint() - start) / 1e9;
+      this.metrics.httpRequests.inc({
+        method: req.method,
+        route,
+        status_class: `${Math.floor(res.statusCode / 100)}xx`,
+      });
+      this.metrics.httpDuration.observe({ method: req.method, route }, seconds);
       log('info', 'http_request', {
         requestId: req.requestId,
         method: req.method,

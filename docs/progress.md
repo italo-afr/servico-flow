@@ -3,7 +3,7 @@
 ## Marco e fase atuais
 
 Marco A (piloto funcional) **implementado e verificado localmente, com dados fictícios**.
-Fases 1–8 entregues; fase 9 parcialmente (verificações locais). Fases 10–11 bloqueadas por decisões externas.
+Fases 1–9 entregues localmente, incluindo monitoramento e alertas. **Fase 10 cancelada por decisão do responsável:** projeto de portfólio, sem hospedagem. Imagens publicadas no GHCR pelo CI. Fase 11 sem empresa parceira.
 Fase 12 (IA) não iniciada.
 
 ## Última entrega concluída
@@ -46,9 +46,8 @@ entrevistas e orçamento fictícios por decisão do responsável.
 
 ## Próxima tarefa pronta
 
-DP-01: validar `infra/deploy/docker-compose.prod.yml` e as imagens num ambiente com Docker (staging),
-depois smoke test — exige decidir o provedor.
-Sem depender disso: OP-01 (métricas OpenTelemetry), otimizar detalhe da ordem, quota por empresa.
+OP-02 (otimizar detalhe da ordem), OP-03 (quota de storage por empresa), roteiro do vídeo e estudo de caso (brief 13).
+Fase 12 (IA) é opcional.
 
 ## Como reproduzir a última entrega
 

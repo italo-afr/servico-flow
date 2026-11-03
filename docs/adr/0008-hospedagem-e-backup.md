@@ -1,6 +1,6 @@
 # ADR-0008 — Hospedagem, backups e restauração (proposta, não executada)
 
-**Status:** proposto · 2026-11-03 — **nenhum serviço contratado; nada publicado.**
+**Status:** proposto, **não será executado** · 2026-11-03 — o responsável decidiu não hospedar (projeto de portfólio). Imagens são publicadas no GHCR para quem quiser rodar.
 
 **Proposta.** VPS Linux com Docker Compose (`infra/deploy/docker-compose.prod.yml`): Caddy (TLS automático) → web e API; worker; migration como tarefa única por release. PostgreSQL **gerenciado** com backup automático (retenção proposta 14 dias) e storage S3-compatível privado com versionamento. RPO proposto ≤ 24 h, RTO ≤ 4 h (objetivos, não garantias).
 

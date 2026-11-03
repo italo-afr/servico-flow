@@ -1,0 +1,18 @@
+# Observabilidade local opcional: Prometheus (:9090) + Alertmanager (:9093) + Mailpit (:8025).
+# Coleta API e worker rodando no host (pnpm dev). NÃO VERIFICADO aqui (sem Docker no ambiente).
+name: servicoflow-observability
+services:
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    ports: ['127.0.0.1:9090:9090']
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
+    extra_hosts: ['api:host-gateway', 'worker:host-gateway']
+  alertmanager:
+    image: prom/alertmanager:v0.34.2
+    ports: ['127.0.0.1:9093:9093']
+    volumes: ['./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro']
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports: ['127.0.0.1:8025:8025']

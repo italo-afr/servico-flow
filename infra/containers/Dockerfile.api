@@ -13,10 +13,12 @@ RUN pnpm --filter @servicoflow/contracts build && pnpm --filter @servicoflow/api
  && pnpm --filter @servicoflow/api deploy --prod --legacy /out
 
 FROM node:24.22.2-bookworm-slim
+LABEL org.opencontainers.image.source=https://github.com/italo-afr/servico-flow
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /out ./
 COPY database/migrations /database/migrations
+ENV MIGRATIONS_DIR=/database/migrations METRICS_PORT=9464 WORKER_METRICS_PORT=9465
 USER node
-EXPOSE 3001
+EXPOSE 3001 9464 9465
 CMD ["node", "dist/main.js"]

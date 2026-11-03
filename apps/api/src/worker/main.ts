@@ -6,6 +6,8 @@ import { createMailer } from '../notifications/mailer.js';
 import { processOnce } from '../notifications/processor.js';
 import { runMaintenance } from './maintenance.js';
 import { createStorage } from '../attachments/storage.js';
+import { createMetrics, startMetricsServer } from '../observability/metrics.js';
+import { runAlertEvaluation } from '../observability/alerts.js';
 
 let config;
 try {
@@ -21,6 +23,8 @@ const db = createPool(config.DATABASE_URL, 3);
 db.on('error', (err) => log('error', 'db_pool_error', { error: err.message }));
 const mailer = createMailer(config);
 const storage = createStorage(config);
+const metrics = createMetrics('worker');
+const metricsServer = startMetricsServer(metrics, config.WORKER_METRICS_PORT);
 const workerId = `${hostname()}-${process.pid}`;
 let stopping = false;
 for (const s of ['SIGTERM', 'SIGINT'] as const) process.once(s, () => (stopping = true));
@@ -35,16 +39,20 @@ while (!stopping) {
       [workerId],
     );
     const results = await processOnce({ db, config, mailer, workerId });
+    for (const r of results) metrics.outboxProcessed.inc({ result: r });
     if (results.length) log('info', 'outbox_batch', { workerId, results });
     if (Date.now() - lastMaintenance > 60_000) {
       await runMaintenance(db, storage);
+      await runAlertEvaluation(db, config, mailer);
       lastMaintenance = Date.now();
     }
     if (results.length === 0) await new Promise((r) => setTimeout(r, 2000));
   } catch (err) {
+    metrics.workerLoopErrors.inc();
     log('error', 'worker_loop_error', { error: (err as Error).message });
     await new Promise((r) => setTimeout(r, 5000));
   }
 }
+metricsServer?.close();
 await db.end();
 log('info', 'worker_stopped', { workerId });

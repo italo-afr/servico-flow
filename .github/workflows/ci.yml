@@ -80,3 +80,21 @@ jobs:
           name: playwright-traces
           path: test-results/
           retention-days: 7
+
+  observability:
+    # Valida as regras de alerta com as ferramentas oficiais (promtool/amtool).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: promtool check + test rules
+        run: |
+          docker run --rm -v "$PWD/infra/observability:/w" -w /w --entrypoint promtool prom/prometheus:v3.15.1 check rules alerts.yml
+          docker run --rm -v "$PWD/infra/observability:/w" -w /w --entrypoint promtool prom/prometheus:v3.15.1 test rules alerts.test.yml
+          docker run --rm -v "$PWD/infra/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro" \
+            -v "$PWD/infra/observability/alerts.yml:/etc/prometheus/alerts.yml:ro" \
+            --entrypoint promtool prom/prometheus:v3.15.1 check config /etc/prometheus/prometheus.yml
+      - name: amtool check-config
+        run: docker run --rm -v "$PWD/infra/observability:/w" --entrypoint amtool prom/alertmanager:v0.34.2 check-config /w/alertmanager.yml

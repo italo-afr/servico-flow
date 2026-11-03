@@ -1,0 +1,17 @@
+# Nunca enviar segredos, dados locais ou artefatos do host para o build.
+**/node_modules
+**/dist
+**/.next
+**/*.tsbuildinfo
+.env
+.env.*
+!.env.example
+**/.local-mail
+**/.local-storage
+**/.e2e-storage
+test-results
+playwright-report
+.git
+docs
+tests
+apps/api/test

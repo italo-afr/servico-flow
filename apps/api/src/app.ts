@@ -11,14 +11,21 @@ import { AccessGuard } from './identity/access.guard.js';
 import { createAuth, type Auth } from './identity/auth.js';
 import { InvitationsController } from './organizations/invitations.js';
 import { MembersController } from './organizations/members.js';
-import { AUTH, CONFIG, DB, STORAGE } from './tokens.js';
+import { AUTH, CONFIG, DB, METRICS, STORAGE } from './tokens.js';
+import { createMetrics, type Metrics } from './observability/metrics.js';
 import { FEATURE_CONTROLLERS } from './features.js';
 import { createStorage, type ObjectStorage } from './attachments/storage.js';
 import expressLib from 'express';
 
 @Module({})
 class AppModule implements NestModule {
-  static register(config: AppConfig, db: Db, auth: Auth, storage: ObjectStorage): DynamicModule {
+  static register(
+    config: AppConfig,
+    db: Db,
+    auth: Auth,
+    storage: ObjectStorage,
+    metrics: Metrics,
+  ): DynamicModule {
     return {
       module: AppModule,
       global: true,
@@ -33,9 +40,10 @@ class AppModule implements NestModule {
         { provide: DB, useValue: db },
         { provide: AUTH, useValue: auth },
         { provide: STORAGE, useValue: storage },
+        { provide: METRICS, useValue: metrics },
         { provide: APP_GUARD, useClass: AccessGuard },
       ],
-      exports: [CONFIG, DB, AUTH, STORAGE],
+      exports: [CONFIG, DB, AUTH, STORAGE, METRICS],
     };
   }
   configure(consumer: MiddlewareConsumer) {
@@ -49,10 +57,11 @@ export async function createApp(
   config: AppConfig,
   db: Db,
   storage: ObjectStorage = createStorage(config),
+  metrics: Metrics = createMetrics('api'),
 ): Promise<NestExpressApplication> {
   const auth = createAuth(config, db);
   const app = await NestFactory.create<NestExpressApplication>(
-    AppModule.register(config, db, auth, storage),
+    AppModule.register(config, db, auth, storage, metrics),
     {
       logger: config.APP_ENV === 'test' ? false : ['error', 'warn'],
       bodyParser: false,

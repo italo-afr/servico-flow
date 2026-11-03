@@ -1,5 +1,18 @@
 # Runbooks
 
+## Alertas → runbook
+
+| Alerta (Prometheus)                          | Alerta embutido            | Runbook                               |
+| -------------------------------------------- | -------------------------- | ------------------------------------- |
+| `ApiDown`, `HighErrorRate`, `HighLatencyP95` | —                          | 1, 2                                  |
+| `WorkerDown`, `OutboxStalled`                | `outbox_stalled`           | 3                                     |
+| `OutboxFailures`                             | `outbox_failed_recent`     | 3                                     |
+| `DbPoolWaiting`, `DbConnectionsHigh`         | `db_connections_high`      | 2                                     |
+| `ProcessMemoryHigh`                          | —                          | 9                                     |
+| —                                            | `quote_expiration_lagging` | 3 (o job de expiração roda no worker) |
+
+Consultar o estado do avaliador embutido: `SELECT * FROM ops_alerts ORDER BY state, rule;` ou a métrica `servicoflow_ops_alert_firing`.
+
 Cada item: **acesso necessário → diagnóstico → ação → verificação → comunicação**. Comandos assumem a VPS do ADR-0008 (ainda não provisionada); ajuste ao provedor real.
 
 ### 1. Aplicação indisponível

@@ -9,7 +9,8 @@ Sistema web para pequenas empresas de manutenção de ar-condicionado acompanhar
 
 > **Estado atual (2026-11-03): demonstração técnica, verificada localmente.**
 > A jornada completa funciona com persistência real (PostgreSQL) e está coberta por testes.
-> **Nada foi publicado** (não há staging, demo nem produção). Não há empresa parceira:
+> **Não é hospedado** (decisão: projeto de portfólio). As imagens Docker são publicadas no GHCR pelo CI,
+> depois de um smoke test. Não há empresa parceira:
 > entrevistas, empresas, clientes e orçamento de infraestrutura são **fictícios**.
 
 ## Problema (hipótese, não validada)
@@ -45,7 +46,7 @@ por uma nova migration (`0005`).
 
 ## Números medidos (local, dados sintéticos)
 
-- **72** testes de integração contra PostgreSQL real, **21** unitários, **1** E2E da jornada no celular.
+- **81** testes de integração contra PostgreSQL real, **21** unitários, **1** E2E da jornada no celular.
 - Carga de 120 s com 20 usuários virtuais e 10 mil ordens: **p95 57,6 ms, 0 erros, ~587 req/s**
   (um contêiner de 4 vCPU; não extrapolar).
 - Backup e restauração ensaiados: dados e totais idênticos, API sobe no banco restaurado.
@@ -88,12 +89,13 @@ pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm t
 
 - [`docs/security.md`](docs/security.md): modelo de ameaças, matriz de papéis e dados pessoais.
 - [`docs/runbooks.md`](docs/runbooks.md): 10 procedimentos de incidente.
-- [`docs/adr/`](docs/adr/): 8 decisões registradas.
+- [`docs/adr/`](docs/adr/): 9 decisões registradas.
+- **Monitoramento:** métricas Prometheus em portas internas e 9 regras de alerta com testes unitários (validadas pelo `promtool` no CI). O worker também tem um avaliador de alertas que envia e-mail mesmo sem Prometheus. Ver ADR-0009.
 
 **Limites conhecidos:**
 
-- Os artefatos de deploy (`infra/`) **nunca foram executados**.
-- Faltam métricas, traces e alertas.
+- O compose de produção e o Caddyfile **nunca foram executados**. As imagens são testadas no CI.
+- Não há traces nem dashboards.
 - Um e-mail pode ser duplicado se o processo cair logo após o provedor aceitar o envio.
 - O limite de taxa das rotas públicas vale para uma instância só.
 - O aceite é um registro operacional, não pagamento nem assinatura jurídica.
@@ -105,7 +107,6 @@ pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm t
 
 ## Próximos passos
 
-1. Validar o deploy em staging. Isso depende de escolher o provedor e o orçamento.
-2. Adicionar métricas e alertas.
-3. Fazer uso acompanhado com uma empresa real, se houver uma disponível.
-4. Avaliar a triagem com IA comparando com um baseline por regras (opcional).
+1. Gravar o vídeo de demonstração e escrever o estudo de caso (brief 13).
+2. Fazer uso acompanhado com uma empresa real, se houver uma disponível.
+3. Avaliar a triagem com IA comparando com um baseline por regras (opcional).

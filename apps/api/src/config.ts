@@ -19,6 +19,14 @@ const schema = z.object({
   SMTP_URL: z.string().optional(),
   EMAIL_ALLOWED_RECIPIENTS: z.string().optional(),
   RELEASE_SHA: z.string().default('dev'),
+  // Porta INTERNA de métricas Prometheus (0 desliga). Nunca publicar no proxy.
+  METRICS_PORT: z.coerce.number().int().min(0).max(65535).default(9464),
+  WORKER_METRICS_PORT: z.coerce.number().int().min(0).max(65535).default(9465),
+  // Destino dos alertas operacionais do avaliador embutido (opcional).
+  OPS_ALERT_EMAIL: z
+    .email()
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
   STORAGE_LOCAL_DIR: z.string().default('.local-storage'),
   STORAGE_ENDPOINT: z.string().optional(),

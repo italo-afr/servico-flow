@@ -151,7 +151,7 @@ de épico e serão detalhadas quando entrarem em `Pronto`.
 ## Novas tarefas (2026-11-03)
 
 - **DP-01 — Validar deploy em staging.** Construir as imagens, subir `infra/deploy/docker-compose.prod.yml` com banco/storage/e-mail de teste, rodar migration como tarefa única e smoke test. _Bloqueado: provedor e autorização de custo._
-- **OP-01 — Métricas e traces.** OpenTelemetry na API/worker; alertas de erro, fila (pendente > 5 min), heartbeat e disco.
+- **OP-01 — Métricas e alertas.** Concluído (ADR-0009). Traces e disco do host ficam de fora.
 - **OP-02 — Otimizar detalhe da ordem.** Consultas dos extras em paralelo ou em uma só; medir antes/depois.
 - **OP-03 — Quota de storage por empresa (bytes).**
 - **OP-04 — Limite de taxa público compartilhado** (banco) antes de rodar mais de uma instância da API.

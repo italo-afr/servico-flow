@@ -1,0 +1,79 @@
+# Regras de alerta (brief 11.8). Limiares são PROPOSTAS a calibrar com uso real.
+# Testadas por `promtool test rules alerts.test.yml` no CI.
+groups:
+  - name: servicoflow
+    rules:
+      - alert: ApiDown
+        expr: up{job="servicoflow-api"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: 'API sem responder à coleta de métricas há 2 min.'
+          runbook: 'docs/runbooks.md#1-aplicação-indisponível'
+
+      - alert: WorkerDown
+        # Pega o caso que o avaliador embutido não vê: o próprio worker morto.
+        expr: up{job="servicoflow-worker"} == 0 or servicoflow_worker_heartbeat_age_seconds > 120
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Worker parado: notificações não estão sendo enviadas.'
+          runbook: 'docs/runbooks.md#3-fila-acumulada--provedor-de-e-mail-fora'
+
+      - alert: HighErrorRate
+        # 5xx acima de 5% em 10 min, só com volume mínimo (evita alarme com 1 erro em 3 req).
+        expr: |
+          (sum(rate(servicoflow_http_requests_total{status_class="5xx"}[10m]))
+            / sum(rate(servicoflow_http_requests_total[10m]))) > 0.05
+          and sum(increase(servicoflow_http_requests_total[10m])) > 50
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Mais de 5% de erros 5xx nos últimos 10 min.'
+          runbook: 'docs/runbooks.md#2-erros-de-banco-ou-pool-esgotado'
+
+      - alert: HighLatencyP95
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(servicoflow_http_request_duration_seconds_bucket[10m]))) > 0.5
+          and sum(increase(servicoflow_http_requests_total[10m])) > 50
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: 'p95 acima de 500 ms por 10 min (meta de engenharia do brief 10.3).'
+
+      - alert: OutboxStalled
+        expr: servicoflow_outbox_oldest_eligible_seconds > 300
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Notificação elegível esperando há mais de 5 min.'
+          runbook: 'docs/runbooks.md#3-fila-acumulada--provedor-de-e-mail-fora'
+
+      - alert: OutboxFailures
+        expr: increase(servicoflow_outbox_processed_total{result="FAILED"}[30m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: 'Notificações com falha definitiva nos últimos 30 min; ver painel Operação.'
+
+      - alert: DbPoolWaiting
+        expr: servicoflow_db_pool_connections{state="waiting"} > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Requisições esperando conexão do pool há 5 min.'
+          runbook: 'docs/runbooks.md#2-erros-de-banco-ou-pool-esgotado'
+
+      - alert: DbConnectionsHigh
+        expr: servicoflow_db_connections_ratio > 0.8
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Mais de 80% das conexões do PostgreSQL em uso.'
+
+      - alert: ProcessMemoryHigh
+        # 512 MiB é o limite proposto no compose de produção.
+        expr: servicoflow_process_resident_memory_bytes > 0.85 * 512 * 1024 * 1024
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Processo usando mais de 85% do limite de memória.'

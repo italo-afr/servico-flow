@@ -1,6 +1,9 @@
 {
   "name": "@servicoflow/contracts",
   "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -15,7 +18,7 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
-    "test:unit": "echo 'contracts: sem testes unitários'"
+    "test:unit": "echo 'contracts: sem testes unit\u00e1rios'"
   },
   "dependencies": {
     "zod": "4.6.7"

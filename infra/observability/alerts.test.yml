@@ -1,0 +1,83 @@
+# Testes unitários das regras: promtool test rules alerts.test.yml
+rule_files:
+  - alerts.yml
+evaluation_interval: 30s
+tests:
+  - name: API fora por 2 min dispara; por 1 min não
+    interval: 30s
+    input_series:
+      - series: 'up{job="servicoflow-api", instance="api:9464"}'
+        values: '1 1 0 0 0 0 0 0'
+    alert_rule_test:
+      - eval_time: 1m30s
+        alertname: ApiDown
+        exp_alerts: []
+      - eval_time: 3m30s
+        alertname: ApiDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: servicoflow-api, instance: api:9464 }
+            exp_annotations:
+              summary: 'API sem responder à coleta de métricas há 2 min.'
+              runbook: 'docs/runbooks.md#1-aplicação-indisponível'
+
+  - name: worker com heartbeat velho dispara mesmo com processo "up"
+    interval: 30s
+    input_series:
+      - series: 'up{job="servicoflow-worker", instance="worker:9465"}'
+        values: '1x20'
+      - series: 'servicoflow_worker_heartbeat_age_seconds{job="servicoflow-api", instance="api:9464"}'
+        values: '5 5 200 230 260 290 320 350 380 410'
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: WorkerDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: servicoflow-api, instance: api:9464 }
+            exp_annotations:
+              summary: 'Worker parado: notificações não estão sendo enviadas.'
+              runbook: 'docs/runbooks.md#3-fila-acumulada--provedor-de-e-mail-fora'
+
+  - name: taxa de erro alta com volume dispara; poucos erros com pouco volume não
+    interval: 1m
+    input_series:
+      # 100 req/min, 10 delas 5xx (10%)
+      - series: 'servicoflow_http_requests_total{status_class="2xx", route="/r", method="GET"}'
+        values: '0+90x30'
+      - series: 'servicoflow_http_requests_total{status_class="5xx", route="/r", method="GET"}'
+        values: '0+10x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: HighErrorRate
+        exp_alerts:
+          - exp_labels: { severity: critical }
+            exp_annotations:
+              summary: 'Mais de 5% de erros 5xx nos últimos 10 min.'
+              runbook: 'docs/runbooks.md#2-erros-de-banco-ou-pool-esgotado'
+
+  - name: pouco volume não dispara mesmo com 50% de erro
+    interval: 1m
+    input_series:
+      - series: 'servicoflow_http_requests_total{status_class="2xx", route="/r", method="GET"}'
+        values: '0+1x30'
+      - series: 'servicoflow_http_requests_total{status_class="5xx", route="/r", method="GET"}'
+        values: '0+1x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: HighErrorRate
+        exp_alerts: []
+
+  - name: fila parada
+    interval: 30s
+    input_series:
+      - series: 'servicoflow_outbox_oldest_eligible_seconds{job="servicoflow-api", instance="api:9464"}'
+        values: '0 100 400 430 460 490 520'
+    alert_rule_test:
+      - eval_time: 30s
+        alertname: OutboxStalled
+        exp_alerts: []
+      - eval_time: 2m30s
+        alertname: OutboxStalled
+        exp_alerts:
+          - exp_labels: { severity: critical, job: servicoflow-api, instance: api:9464 }
+            exp_annotations:
+              summary: 'Notificação elegível esperando há mais de 5 min.'
+              runbook: 'docs/runbooks.md#3-fila-acumulada--provedor-de-e-mail-fora'

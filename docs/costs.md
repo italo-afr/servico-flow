@@ -1,6 +1,9 @@
 # Custos
 
-> **Nenhum preço foi consultado ainda e nenhum serviço foi contratado.** O teto abaixo é um valor
+> **Decisão do responsável (2026-11-03): o projeto não será hospedado.** Custo de infraestrutura = R$ 0.
+> As imagens ficam no GitHub Container Registry. A tabela abaixo serve só para quem decidir hospedar.
+>
+> **Nenhum preço foi consultado e nenhum serviço foi contratado.** O teto abaixo é um valor
 > **fictício** de planejamento (decisão do responsável: sem dados reais). Preencha com valores
 > consultados, data, moeda e impostos antes da fase 10.
 
